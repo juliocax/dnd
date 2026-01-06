@@ -1,147 +1,318 @@
-// DADOS DO PERSONAGEM
-const stats = {
-    level: 3,
-    attributes: {
-        str: 10,
-        dex: 10,
-        con: 10,
-        int: 10, // Importante: Se quiser mudar na ficha, mude aqui. Ex: int: 16 (+3)
-        wis: 10,
-        cha: 10
-    },
-    player: {
-        maxHp: 18,
-        currentHp: 18
-    },
-    defender: { currentHp: 0, maxHp: 0 },
-    homunculus: { currentHp: 0, maxHp: 0 }
+
+const SHEET_ID = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSdOjZm_tWpnBs6MYtrym6nzYy-C03eLLmgppOp_thgcjVoV9583zSm-si_acht5TDwwmZ9D4gFx1GN/pub?output=csv'; 
+
+const SHEET_URL = `https://api.allorigins.win/raw?url=${encodeURIComponent(SHEET_ID)}`;
+
+const appState = {
+    player: { current: 0, max: 0 },
+    defender: { current: 0, max: 0 },
+    homunculus: { current: 0, max: 0 }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    updateAll();
+    fetchData();
 });
 
-function updateAll() {
-    updateAttributes();
-    updateCompanionsStats();
-    updateCombatStats();
-    updateDisplays();
-}
+async function fetchData() {
+    try {
+        const response = await fetch(SHEET_URL);
+        if (!response.ok) throw new Error("Erro de conexão (Rede/Proxy)");
+        
+        const dataText = await response.text();
+        
+        // Verifica se veio HTML (erro comum, mas seu link parece certo)
+        if (dataText.includes("<!DOCTYPE") || dataText.includes("<html")) {
+            alert("ERRO: O link gerou um site, não um CSV. Verifique se a planilha está publicada como CSV.");
+            return;
+        }
 
-// 1. ATUALIZA ATRIBUTOS NA TELA
-function updateAttributes() {
-    const getMod = (score) => Math.floor((score - 10) / 2);
-    for (const [key, value] of Object.entries(stats.attributes)) {
-        const mod = getMod(value);
-        document.getElementById(`score-${key}`).innerText = value;
-        document.getElementById(`mod-${key}`).innerText = mod >= 0 ? `+${mod}` : mod;
+        const db = parseCSV(dataText);
+        
+        // Verificação se leu algo útil
+        if (!db.info.name && db.arsenal.length === 0) {
+            console.log("Conteúdo recebido:", dataText);
+            alert("O site conectou na planilha, mas não entendeu os dados. Verifique se as colunas A e B estão preenchidas corretamente (ex: 'info' na A, 'name' na B).");
+        }
+
+        loadDataToUI(db);
+        initializeRuntimeState(db);
+        updateDisplays();
+
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao carregar: " + error.message);
     }
 }
 
-// 2. CALCULA ESTATISTICAS DE COMBATE E TEXTOS DINAMICOS
-function updateCombatStats() {
-    // Proficiency Bonus: Nvl 1-4 (+2), 5-8 (+3), 9-12 (+4), 13-16 (+5), 17-20 (+6)
-    const pb = Math.ceil(stats.level / 4) + 1;
-    const intMod = Math.floor((stats.attributes.int - 10) / 2);
+function parseCSV(csvText) {
+    const lines = csvText.split(/\r?\n/);
     
-    // Spell Attack = Int Mod + PB
+    // Detecta separador (; ou ,)
+    let separator = ',';
+    const sample = lines.find(l => l.length > 5);
+    if (sample && sample.includes(';')) separator = ';';
+
+    const db = {
+        info: {}, 
+        attributes: { str:10, dex:10, con:10, int:10, wis:10, cha:10 },
+        stats: { maxHp: 0, ac: 0, speed: "", initiative: 0, proficiencyBonus: 2 },
+        spells: { cantrips: [], level1: [] }, 
+        arsenal: [],
+        companions: { 
+            defender: { name: "Defensor", maxHp: 0, texts: {}, traits: [], actions: [], reactions: [] }, 
+            homunculus: { name: "Homúnculo", maxHp: 0, texts: {}, traits: [], actions: [], reactions: [] } 
+        }
+    };
+
+    lines.forEach((row) => {
+        if (!row.trim()) return;
+        const cols = row.split(separator);
+        
+        // MUDANÇA 2: Força tudo para minúsculo na leitura das chaves
+        const type = cols[0] ? cols[0].trim().toLowerCase() : "";
+        const keyRaw = cols[1] ? cols[1].trim() : "";
+        const key = keyRaw.toLowerCase(); // Chave sempre minúscula (defender, str, etc)
+
+        // Nas colunas de texto (C e D), mantemos a formatação original (Maiúsculas/Minúsculas)
+        // Lógica para CSV que pode ter virgulas no texto:
+        let name = "";
+        let desc = "";
+
+        if (separator === ';') {
+            name = cols[2] ? cols[2].trim() : "";
+            desc = cols[3] ? cols[3].trim() : "";
+        } else {
+            // Se for vírgula, tenta ser inteligente se o texto quebrou
+            name = cols[2] ? cols[2].trim() : "";
+            desc = cols.slice(3).join(',').trim(); // Junta o resto se tiver virgulas na descrição
+        }
+        
+        // --- PARSER ---
+
+        // Info e Atributos
+        if(type === 'info') db.info[keyRaw] = name; // Usa keyRaw para info (pode ter camelCase)
+        // Correção específica para 'name' que as vezes o user põe na coluna C ou D
+        if(type === 'info' && key === 'name' && name === "") db.info.name = desc;
+
+        if(type === 'attr') db.attributes[key] = parseInt(name) || 10;
+        if(type === 'stat') db.stats[key] = (key === 'speed') ? name : parseInt(name);
+        
+        // Magias
+        if(type.startsWith('spell')) {
+            const list = type === 'spell0' ? db.spells.cantrips : db.spells.level1;
+            // Verifica se tem nome, senão ignora
+            if(keyRaw) list.push({ name: keyRaw, desc: name }); 
+            // Nota: Se usou a tabela nova, o NOME tá na coluna B (keyRaw) e DESC na C (name)
+        }
+
+        // Armas
+        if(type === 'weapon') {
+            // Padrão novo: A=weapon, B=Nome, C=Tipo, D=Dano
+            const isWpn = desc.toLowerCase().includes('d');
+            db.arsenal.push({ 
+                name: keyRaw, // Nome da arma (Coluna B)
+                type: name,   // Tipo (Coluna C)
+                isWeapon: isWpn, 
+                damageDie: desc, // Dano (Coluna D)
+                bonusAtk: 1 
+            });
+        }
+        
+        // --- PETS (Lógica Nova) ---
+        if(type.startsWith('pet')) {
+            let pet = db.companions[key]; // key agora é 'defender' ou 'homunculus' (minúsculo)
+            
+            if(pet) {
+                if(type === 'pet') {
+                    pet.name = name; // Nome visual (Defensor de Aço)
+                    pet.maxHp = parseInt(desc) || 0; // Vida numérica
+                }
+                else if(type === 'pet_txt') {
+                    // Salva chaves como 'ac', 'speed'
+                    pet.texts[name.toLowerCase()] = desc;
+                }
+                else if(type === 'pet_trait') {
+                    pet.traits.push({ title: name, text: desc });
+                }
+                else if(type === 'pet_action') {
+                    pet.actions.push({ title: name, text: desc });
+                }
+                else if(type === 'pet_reaction') {
+                    pet.reactions.push({ title: name, text: desc });
+                }
+            }
+        }
+    });
+    return db;
+}
+
+function loadDataToUI(d) {
+    if (!d.info.name && !d.info.Name) return; 
+
+    // Tenta pegar o nome de várias formas caso a planilha tenha mudado
+    const charName = d.info.name || d.info.Name || "Personagem";
+
+    setText('char-name', charName);
+    setText('char-title', d.info.title);
+    setText('char-level-display', d.info.level);
+    setText('char-race', d.info.race);
+    setText('char-class', d.info.classInfo);
+    setText('bio-background', d.info.background);
+    setText('bio-align', d.info.alignment);
+    setText('bio-age', d.info.age);
+    setText('bio-physique', d.info.heightWeight);
+    setText('bio-appearance', d.info.appearance);
+    setText('char-lore', d.info.lore);
+    setText('footer-name', charName);
+    setText('footer-lvl', d.info.level);
+
+    updateAttributeDisplay('str', d.attributes.str);
+    updateAttributeDisplay('dex', d.attributes.dex);
+    updateAttributeDisplay('con', d.attributes.con);
+    updateAttributeDisplay('int', d.attributes.int);
+    updateAttributeDisplay('wis', d.attributes.wis);
+    updateAttributeDisplay('cha', d.attributes.cha);
+
+    const intMod = Math.floor((d.attributes.int - 10) / 2);
+    const lvl = parseInt(d.info.level || 1);
+    const pb = Math.ceil(lvl / 4) + 1;
     const spellAtk = intMod + pb;
     const spellDc = 8 + intMod + pb;
 
-    // Atualiza Painel Principal
-    document.getElementById('prof-bonus').innerText = `+${pb}`;
-    document.getElementById('spell-atk').innerText = spellAtk >= 0 ? `+${spellAtk}` : spellAtk;
-    document.getElementById('spell-dc').innerText = spellDc;
+    setText('stat-ac', d.stats.ac);
+    setText('stat-init', d.stats.initiative);
+    setText('stat-speed', d.stats.speed);
+    setText('prof-bonus', `+${pb}`);
+    setText('spell-atk', `+${spellAtk}`);
+    setText('spell-dc', spellDc);
 
-    // Atualiza Arma (Battle Ready: Usa INT para ataque e dano com arma mágica)
-    // Assumindo Arma Infundida (+1)
-    const weaponHit = spellAtk + 1; 
-    document.getElementById('weapon-hit-val').innerText = `+${weaponHit}`;
-
-    // Atualiza Textos Dinâmicos nas Fichas dos Pets e Arma
-    // Classe .dyn-pb -> Valor do PB
     document.querySelectorAll('.dyn-pb').forEach(el => el.innerText = pb);
-    // Classe .dyn-spell-atk -> Valor do Ataque Magico
-    document.querySelectorAll('.dyn-spell-atk').forEach(el => el.innerText = spellAtk >= 0 ? `+${spellAtk}` : spellAtk);
-    // Classe .dyn-int-plus-one -> Dano da arma (Int + 1)
-    document.querySelectorAll('.dyn-int-plus-one').forEach(el => el.innerText = (intMod + 1));
-    // Classe .calc-pp-defender -> Passive Perception (10 + PB*2)
-    document.querySelectorAll('.calc-pp-defender').forEach(el => el.innerText = (10 + (pb * 2)));
+    document.querySelectorAll('.dyn-spell-atk').forEach(el => el.innerText = spellAtk);
+
+    renderList('list-cantrips', d.spells.cantrips);
+    renderList('list-level1', d.spells.level1);
+    renderArsenal('weapons-container', d.arsenal, spellAtk, intMod);
+
+    renderPetCard('defender', d.companions.defender);
+    renderPetCard('homunculus', d.companions.homunculus);
 }
 
-// 3. CALCULA VIDA DOS PETS
-function updateCompanionsStats() {
-    const intMod = Math.floor((stats.attributes.int - 10) / 2);
+function renderPetCard(petId, petData) {
+    setText(petId === 'defender' ? 'def-name' : 'hom-name', petData.name);
+    if(petData.maxHp > 0) appState[petId].max = petData.maxHp;
+
+    const cssClass = petId === 'defender' ? '.steel-defender' : '.homunculus';
+    const container = document.querySelector(`${cssClass} .stat-content`);
     
-    // Steel Defender: HP = 2 + IntMod + (5 * Level)
-    const defMax = 2 + intMod + (5 * stats.level);
-    stats.defender.maxHp = defMax;
-    if(stats.defender.currentHp === 0 || stats.defender.currentHp > defMax) stats.defender.currentHp = defMax;
+    if(!container) return;
 
-    // Homunculus: HP = 1 + IntMod + Level
-    const homMax = 1 + intMod + stats.level;
-    stats.homunculus.maxHp = homMax;
-    if(stats.homunculus.currentHp === 0 || stats.homunculus.currentHp > homMax) stats.homunculus.currentHp = homMax;
-}
+    let html = '';
+    const txt = petData.texts;
+    // Tenta pegar em ingles ou portugues
+    const ac = txt['ca'] || txt['ac'] || txt['armor class'] || '--';
+    const speed = txt['desl'] || txt['desl.'] || txt['speed'] || '--';
+    const stats = txt['stats'] || txt['atributos'] || '--';
+    const skills = txt['pericias'] || txt['skills'] || '';
+    const immun = txt['imunes'] || txt['immunities'] || '';
+    const senses = txt['sentidos'] || txt['senses'] || '';
 
-// 4. ATUALIZA BARRAS E NÚMEROS
-function updateDisplays() {
-    // Player
-    document.getElementById('current-hp').innerText = stats.player.currentHp;
-    document.getElementById('max-hp').innerText = stats.player.maxHp;
-    updateBarColorAndSize('hp-bar', stats.player.currentHp, stats.player.maxHp);
+    html += `
+        <div class="stat-header-line">
+            <span><strong>CA:</strong> ${ac}</span>
+            <span><strong>Desl:</strong> ${speed}</span>
+        </div>
+        <div class="stat-header-line" style="margin-top:5px; font-size:0.85em; color:#ccc;">
+            <span>${stats}</span>
+        </div>
+    `;
+
+    html += `<div class="stat-actions" style="margin-top: 10px; font-size: 0.9em;">`;
     
-    // Level
-    document.getElementById('level-val').innerText = stats.level;
-    document.getElementById('char-level-display').innerText = stats.level;
-    document.getElementById('footer-lvl').innerText = stats.level;
+    if(skills) html += `<p><strong>Perícias:</strong> ${skills}</p>`;
+    if(immun)  html += `<p><strong>Imunidades:</strong> ${immun}</p>`;
+    if(senses) html += `<p><strong>Sentidos:</strong> ${senses}</p>`;
+    
+    html += `<hr style="border-color: #444; margin: 8px 0;">`;
 
-    // Defender
-    document.getElementById('defender-hp-text').innerText = `${stats.defender.currentHp}/${stats.defender.maxHp}`;
-    updateBarColorAndSize('defender-hp-bar', stats.defender.currentHp, stats.defender.maxHp);
+    petData.traits.forEach(t => {
+        html += `<div class="action-item"><strong>${t.title}</strong> ${t.text}</div>`;
+    });
 
-    // Homunculus
-    document.getElementById('homunculus-hp-text').innerText = `${stats.homunculus.currentHp}/${stats.homunculus.maxHp}`;
-    updateBarColorAndSize('homunculus-hp-bar', stats.homunculus.currentHp, stats.homunculus.maxHp);
+    if(petData.actions.length > 0) {
+        html += `<h5 style="margin-top:8px; color:var(--text-main);">Ações</h5>`;
+        petData.actions.forEach(a => {
+            html += `<div class="action-item"><strong>${a.title}</strong> ${a.text}</div>`;
+        });
+    }
+
+    if(petData.reactions.length > 0) {
+        html += `<h5 style="margin-top:8px; color:var(--text-main);">Reações</h5>`;
+        petData.reactions.forEach(r => {
+            html += `<div class="action-item"><strong>${r.title}</strong> ${r.text}</div>`;
+        });
+    }
+    html += `</div>`; 
+
+    container.innerHTML = html;
 }
 
-// Auxiliar: Cor da Barra (Verde -> Amarelo -> Vermelho)
-function updateBarColorAndSize(elementId, current, max) {
-    const percent = Math.max(0, Math.min(100, (current / max) * 100));
-    const bar = document.getElementById(elementId);
-    bar.style.width = `${percent}%`;
-    const hue = Math.floor(percent * 1.2); 
-    bar.style.backgroundColor = `hsl(${hue}, 100%, 40%)`;
-    bar.style.boxShadow = `0 0 10px hsl(${hue}, 100%, 40%)`;
+function initializeRuntimeState(d) {
+    appState.player.max = d.stats.maxHp || 10;
+    appState.player.current = d.stats.maxHp || 10;
 }
-
+function renderList(containerId, list) {
+    const container = document.getElementById(containerId);
+    if (!container) return; container.innerHTML = ''; 
+    list.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${item.name}</strong><p class="desc">${item.desc}</p>`;
+        li.onclick = () => li.classList.toggle('active');
+        container.appendChild(li);
+    });
+}
+function renderArsenal(containerId, list, spellAtk, intMod) {
+    const container = document.getElementById(containerId);
+    if (!container) return; container.innerHTML = '';
+    list.forEach(item => {
+        if (item.isWeapon) {
+            const hit = spellAtk + (item.bonusAtk || 0);
+            const dmgBonus = intMod + (item.bonusAtk || 0);
+            const html = `<div class="weapon-card main-weapon"><div class="weapon-icon"><i class="fas fa-gavel"></i></div><div class="weapon-info"><h4>${item.name}</h4><span class="weapon-type">${item.type}</span></div><div class="weapon-stats"><div class="w-hit"><span class="label">Acerto</span><span class="val">+${hit}</span></div><div class="w-dmg"><span class="label">Dano</span><span class="val">${item.damageDie} + ${dmgBonus}</span></div></div></div>`;
+            container.innerHTML += html;
+        } else {
+            const html = `<div class="spells-category" style="margin-bottom:10px;"><ul class="spell-list"><li onclick="this.classList.toggle('active')"><strong>${item.name}</strong><p class="desc">${item.desc}</p></li></ul></div>`;
+            container.innerHTML += html;
+        }
+    });
+}
+function updateAttributeDisplay(attr, score) {
+    const mod = Math.floor((score - 10) / 2);
+    setText(`score-${attr}`, score);
+    setText(`mod-${attr}`, mod >= 0 ? `+${mod}` : mod);
+}
+function setText(id, text) { const el = document.getElementById(id); if (el) el.innerText = text; }
 function modifyHP(target, amount) {
-    const entity = stats[target];
-    entity.currentHp += amount;
-    if (entity.currentHp > entity.maxHp) entity.currentHp = entity.maxHp;
-    if (entity.currentHp < 0) entity.currentHp = 0;
+    const entity = appState[target]; if (!entity) return;
+    entity.current += amount;
+    if (entity.current > entity.max) entity.current = entity.max;
+    if (entity.current < 0) entity.current = 0;
     updateDisplays();
 }
-
-function changeLevel(amount) {
-    stats.level += amount;
-    if(stats.level < 1) stats.level = 1;
-    if(stats.level > 20) stats.level = 20;
-
-    // Ajusta HP Max Player (Regra genérica: +5 +CON)
-    const conMod = Math.floor((stats.attributes.con - 10) / 2);
-    const hpPerLevel = 5 + conMod;
-
-    if (amount > 0) {
-        stats.player.maxHp += hpPerLevel;
-        stats.player.currentHp += hpPerLevel;
-    } else {
-        stats.player.maxHp -= hpPerLevel;
-        if(stats.player.currentHp > stats.player.maxHp) stats.player.currentHp = stats.player.maxHp;
-    }
-    updateAll();
+function updateDisplays() {
+    updateBar('hp-bar', 'current-hp', 'max-hp', appState.player);
+    updateBar('defender-hp-bar', 'defender-hp-text', null, appState.defender, true);
+    updateBar('homunculus-hp-bar', 'homunculus-hp-text', null, appState.homunculus, true);
 }
-
-function toggleDesc(element) {
-    element.classList.toggle('active');
+function updateBar(barId, textId, maxId, entity, isCompact = false) {
+    const bar = document.getElementById(barId);
+    const textEl = document.getElementById(textId);
+    const maxEl = maxId ? document.getElementById(maxId) : null;
+    if (bar && textEl) {
+        if (maxEl) maxEl.innerText = entity.max;
+        textEl.innerText = isCompact ? `${entity.current}/${entity.max}` : entity.current;
+        const percent = Math.max(0, Math.min(100, (entity.current / entity.max) * 100));
+        bar.style.width = `${percent}%`;
+        const hue = Math.floor(percent * 1.2); 
+        bar.style.backgroundColor = `hsl(${hue}, 100%, 40%)`;
+    }
 }
