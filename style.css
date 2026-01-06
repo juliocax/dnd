@@ -55,10 +55,6 @@ h1, h2, h3, h4 {
     text-align: center;
 }
 
-
-/* --- ATUALIZAÇÃO DO BANNER (HERO SECTION) --- */
-
-/* Ajuste no título para dar mais destaque */
 .character-identity {
     margin-bottom: 2rem;
     position: relative;
@@ -66,7 +62,7 @@ h1, h2, h3, h4 {
 }
 
 .character-identity h1 {
-    font-size: 3.5rem; /* Maior */
+    font-size: 3.5rem; 
     text-shadow: 0 4px 15px rgba(0,0,0,0.8), 0 0 20px var(--bronze-dim);
     margin-bottom: 0.2rem;
     letter-spacing: 2px;
@@ -74,22 +70,21 @@ h1, h2, h3, h4 {
 
 .character-identity h2 {
     font-size: 1.4rem;
-    color: var(--arcane-blue); /* Mudado para azul arcano para contraste */
+    color: var(--arcane-blue); 
     font-weight: 300;
     letter-spacing: 4px;
     opacity: 0.9;
     text-shadow: 0 2px 4px rgba(0,0,0,1);
 }
 
-/* Novo Estilo para o Bloco de Informações (Bio Stats) */
 .bio-stats {
     text-align: left;
-    background: rgba(20, 20, 24, 0.85); /* Mais escuro e sólido */
-    backdrop-filter: blur(8px); /* Efeito de vidro fosco */
+    background: rgba(20, 20, 24, 0.85); 
+    backdrop-filter: blur(8px); 
     padding: 1.5rem;
     border-radius: 4px;
     border: 1px solid #444;
-    border-top: 3px solid var(--bronze); /* Detalhe no topo */
+    border-top: 3px solid var(--bronze); 
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     flex: 1;
     min-width: 300px;
@@ -99,7 +94,6 @@ h1, h2, h3, h4 {
     justify-content: center;
 }
 
-/* Estilo das novas "Tags" (Nivel, Raça, Classe) */
 .identity-tags {
     display: flex;
     gap: 10px;
@@ -136,7 +130,6 @@ h1, h2, h3, h4 {
     text-shadow: 0 0 5px var(--arcane-glow);
 }
 
-/* Separador estético */
 .bio-separator {
     border: 0;
     height: 1px;
@@ -144,7 +137,6 @@ h1, h2, h3, h4 {
     margin: 0.5rem 0 1rem 0;
 }
 
-/* Lista de detalhes (Antecedente, Idade, etc) */
 .bio-details {
     display: flex;
     flex-direction: column;
@@ -170,13 +162,12 @@ h1, h2, h3, h4 {
     margin-right: 5px;
 }
 
-/* Ajuste fino na imagem para combinar */
 .char-img {
     width: 220px;
-    height: 280px; /* Um pouco maior verticalmente */
+    height: 280px; 
     border: 4px solid #1a1a1e;
     outline: 2px solid var(--bronze);
-    border-radius: 4px; /* Menos arredondado para ficar mais sério */
+    border-radius: 4px; 
     box-shadow: 0 10px 25px rgba(0,0,0,0.6);
 }
 .sub-info {
@@ -197,7 +188,6 @@ h1, h2, h3, h4 {
 }
 
 
-/* --- ATRIBUTOS (NOVO) --- */
 .attributes-container {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -227,7 +217,6 @@ h1, h2, h3, h4 {
 
 .separator { border: 0; border-top: 1px solid #333; margin: 1.5rem 0; }
 
-/* --- PAINÉIS GERAIS --- */
 main {
     max-width: 1000px;
     margin: 2rem auto;
@@ -246,14 +235,13 @@ main {
 }
 
 .panel::before {
-    /* Efeito de parafuso nos cantos */
     content: '';
     position: absolute;
     top: 10px; left: 10px;
     width: 8px; height: 8px;
     background: var(--bronze);
     border-radius: 50%;
-    box-shadow: 950px 0 0 var(--bronze); /* Ajustar via JS se quiser responsivo perfeito, mas funciona visualmente */
+    box-shadow: 950px 0 0 var(--bronze);
 }
 
 .section-title {
@@ -263,7 +251,6 @@ main {
     text-shadow: 0 0 5px var(--arcane-glow);
 }
 
-/* --- ESTATÍSTICAS --- */
 .hp-container {
     background: #111;
     padding: 8px;
@@ -283,7 +270,7 @@ main {
 
 .hp-bar-bg {
     width: 100%;
-    height: 8px; /* Mais fino como pedido */
+    height: 8px; 
     background: #222;
     border-radius: 4px;
     overflow: hidden;
@@ -293,7 +280,6 @@ main {
 .hp-bar-fill {
     height: 100%;
     width: 100%;
-    /* A cor será definida via JS (HSL) */
     background-color: #4dff88; 
     transition: width 0.4s ease, background-color 0.4s ease;
 }
@@ -342,7 +328,6 @@ main {
     color: var(--text-main);
 }
 
-/* --- TRAÇOS E MAGIAS (Accordion) --- */
 .trait-item, .spell-list li {
     background: rgba(0,0,0,0.2);
     margin-bottom: 0.5rem;
@@ -357,7 +342,7 @@ main {
 }
 
 .trait-desc, .spell-list p.desc {
-    display: none; /* Escondido por padrão */
+    display: none; 
     margin-top: 0.5rem;
     font-size: 0.9rem;
     color: var(--text-muted);
@@ -367,7 +352,7 @@ main {
 
 .trait-item.active .trait-desc, 
 .spell-list li.active p.desc {
-    display: block; /* Aparece ao clicar */
+    display: block;
     animation: fadeIn 0.3s;
 }
 
@@ -392,27 +377,24 @@ main {
     border: 1px solid var(--arcane-blue);
 }
 
-/* COMPANHOS & STAT BLOCK */
 .companion-banner-img {
     width: 100%;
-    height: 180px; /* Altura fixa para dar o aspecto de banner */
-    object-fit: cover; /* Corta a imagem para preencher sem esticar */
-    object-position: center 20%; /* Foca um pouco mais no topo (rostos) */
+    height: 180px; 
+    object-fit: cover; 
+    object-position: center 20%; 
     
     border: 2px solid var(--bronze);
     border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Sombra mais marcada embaixo */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); 
     
-    margin-bottom: 1rem; /* Espaço entre o banner e a vida */
+    margin-bottom: 1rem;
     display: block;
 }
 
-/* Container apenas para a barra de vida, para separar do resto */
 .comp-status-wrapper {
     margin-bottom: 1rem;
 }
 
-/* O resto do stat-block continua igual */
 .stat-block {
     background: #18181b; 
     border: 1px solid #444; 
@@ -420,11 +402,10 @@ main {
     overflow: hidden;
 }
 
-/* Estilo copiado da .char-img para ficar igual ao principal */
 .comp-img img { 
     width: 200px; 
     height: 250px; 
-    border-radius: 8px; /* Borda arredondada leve, não mais redonda (50%) */
+    border-radius: 8px; 
     border: 2px solid var(--bronze); 
     box-shadow: 0 0 15px var(--arcane-glow);
     object-fit: cover; 
@@ -432,13 +413,11 @@ main {
 
 .comp-status-bar { flex: 1; }
 
-/* Removemos o cursor pointer pois não é mais clicável para abrir */
 .stat-block {
     background: #18181b; 
     border: 1px solid #444; 
     border-radius: 4px; 
     overflow: hidden;
-    /* O summary foi removido, então o conteúdo aparece direto */
 }
 .stat-block summary {
     padding: 10px; background: #222; cursor: pointer; font-size: 0.9rem; font-weight: bold; color: var(--bronze); outline: none;
@@ -459,21 +438,19 @@ main {
 .action-item { margin-bottom: 8px; }
 .stat-traits p, .stat-reactions p { margin-bottom: 5px; font-size: 0.85rem; }
 
-/* SLOTS DE MAGIA (CHECKBOX CUSTOMIZADO) */
 .spell-slots-container {
     background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; 
     display: flex; align-items: center; gap: 15px; margin-bottom: 1.5rem; border: 1px solid #333;
 }
 .slot-label { font-weight: bold; color: var(--bronze); font-size: 0.9rem; }
 .slots-wrapper { display: flex; gap: 10px; }
-.slot-checkbox input { display: none; } /* Esconde o checkbox real */
+.slot-checkbox input { display: none; } 
 .slot-visual {
     display: block; width: 20px; height: 20px;
-    background: #333; border: 2px solid #555; transform: rotate(45deg); /* Losango */
+    background: #333; border: 2px solid #555; transform: rotate(45deg); 
     cursor: pointer; transition: all 0.3s;
 }
-/* Estado: Disponível (Checkado = Gasto, mas na UI vamos inverter visualmente ou tratar unchecked como cheio) 
-   Vamos tratar: Checkbox MARCADO = Slot GASTO (Apagado). Checkbox DESMARCADO = Slot CHEIO (Brilhando). */
+
 .slot-checkbox input:not(:checked) + .slot-visual {
     background: var(--arcane-blue);
     border-color: #fff;
@@ -486,7 +463,6 @@ main {
 
 
 
-/* --- COMPANIONS --- */
 .companion-grid {
     display: flex;
     flex-wrap: wrap;
@@ -514,11 +490,9 @@ main {
     font-size: 0.9rem;
 }
 
-/* --- ESTILO AVANÇADO DOS PETS (style.css) --- */
 
-/* Ajuste no Painel Geral do Pet para ser a "Moldura" */
 .companion-panel {
-    padding: 0; /* Remove padding padrão para imagem sangrar */
+    padding: 0; 
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     background: rgba(30, 30, 36, 0.95);
@@ -528,17 +502,15 @@ main {
     transform: translateY(-2px);
 }
 
-/* Cores Temáticas Específicas */
 .companion-panel.steel-defender {
-    border: 1px solid #8c5a2b; /* Bronze Escuro */
+    border: 1px solid #8c5a2b; 
     box-shadow: 0 0 10px rgba(205, 127, 50, 0.1);
 }
 .companion-panel.homunculus {
-    border: 1px solid #008b8b; /* Ciano Escuro */
+    border: 1px solid #008b8b; 
     box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
 }
 
-/* Cabeçalho com Imagem e Nome */
 .pet-header-wrapper {
     position: relative;
     height: 200px;
@@ -572,15 +544,13 @@ main {
     margin: 0;
     font-size: 1.6rem;
     color: #fff;
-    border: none; /* Remove borda padrão do h3 */
+    border: none; 
 }
 
-/* Área de Conteúdo (Stat Block) */
 .pet-content-body {
     padding: 15px 20px 20px 20px;
 }
 
-/* Barra de Vida Estilizada */
 .pet-hp-wrapper {
     background: rgba(0,0,0,0.3);
     padding: 8px;
@@ -593,13 +563,12 @@ main {
 }
 
 .pet-hp-wrapper .hp-bar-bg {
-    margin-bottom: 0; /* Reset */
+    margin-bottom: 0;
     flex-grow: 1;
     background: #111;
     border: 1px solid #333;
 }
 
-/* Grid de Status (CA, Desl, Atributos) */
 .pet-stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -635,7 +604,6 @@ main {
 .steel-defender .pet-stat-val { color: var(--bronze); }
 .homunculus .pet-stat-val { color: var(--arcane-blue); }
 
-/* Detalhes (Perícias, Imunidades) */
 .pet-details-small {
     font-size: 0.8rem;
     color: #ccc;
@@ -646,7 +614,6 @@ main {
 }
 .pet-details-small strong { color: var(--text-main); }
 
-/* Seções de Ação */
 .pet-actions-section h5 {
     font-family: 'Cinzel', serif;
     font-size: 1rem;
@@ -685,17 +652,12 @@ main {
     color: #fff;
 }
 
-
-/* --- ESTILO DAS ABAS DE MAGIA --- */
-
-/* O container onde as magias serão geradas */
 #spellbook-container {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-/* O botão do Nível (Cabeçalho) */
 .spell-level-header {
     background: linear-gradient(90deg, #2a2a30, #1e1e24);
     border: 1px solid #444;
@@ -723,7 +685,6 @@ main {
     color: var(--text-muted);
 }
 
-/* Estado Ativo (Quando a aba está aberta) */
 .spell-level-header.active {
     background: #1a1a1e;
     border-left-color: var(--arcane-blue);
@@ -735,24 +696,22 @@ main {
     color: var(--arcane-blue);
 }
 
-/* O conteúdo (A lista de magias) */
 .spell-level-content {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.4s ease-out;
     background: rgba(0,0,0,0.2);
     border-radius: 0 0 4px 4px;
-    margin-top: -5px; /* Cola no header */
+    margin-top: -5px;
     margin-bottom: 5px;
 }
 
 .spell-level-content .spell-list {
-    max-height: 300px; /* Altura máxima antes de rolar */
-    overflow-y: auto;  /* Habilita rolagem vertical */
-    padding-right: 5px; /* Espaço para não colar no scroll */
+    max-height: 300px; 
+    overflow-y: auto;  
+    padding-right: 5px; 
 }
 
-/* Estilização da Barra de Rolagem (Webkit - Chrome/Edge/Safari) */
 .spell-level-content .spell-list::-webkit-scrollbar {
     width: 6px;
 }
@@ -774,7 +733,6 @@ main {
     gap: 2rem;
 }
 
-/* Títulos das subseções (Armas vs Itens) gerados pelo JS */
 .arsenal-subtitle {
     font-family: 'Cinzel', serif;
     font-size: 1rem;
@@ -789,7 +747,7 @@ main {
 /* --- GRID DE ARMAS --- */
 .weapons-grid-area {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsivo: cria colunas conforme cabe */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
     gap: 15px;
 }
 
@@ -797,7 +755,7 @@ main {
 .weapon-card {
     background: linear-gradient(145deg, #25252b 0%, #1c1c21 100%);
     border: 1px solid #444;
-    border-left: 4px solid var(--bronze); /* Identidade visual Bronze */
+    border-left: 4px solid var(--bronze); 
     border-radius: 6px;
     padding: 15px;
     display: flex;
@@ -809,7 +767,6 @@ main {
     overflow: hidden;
 }
 
-/* Efeito Hover */
 .weapon-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 15px rgba(0,0,0,0.4);
@@ -817,7 +774,6 @@ main {
     background: linear-gradient(145deg, #2a2a30 0%, #202026 100%);
 }
 
-/* Brilho sutil no fundo */
 .weapon-card::after {
     content: '';
     position: absolute;
@@ -827,7 +783,6 @@ main {
     pointer-events: none;
 }
 
-/* Ícone da Arma */
 .weapon-icon-box {
     width: 45px;
     height: 45px;
@@ -842,7 +797,6 @@ main {
     margin-right: 12px;
 }
 
-/* Informações (Nome e Tipo) */
 .weapon-info {
     flex: 1;
     display: flex;
@@ -863,7 +817,6 @@ main {
     font-style: italic;
 }
 
-/* Estatísticas (Acerto e Dano) */
 .weapon-stats-block {
     display: flex;
     gap: 8px;
@@ -880,13 +833,12 @@ main {
     min-width: 50px;
 }
 
-.w-stat.hit { border-bottom: 2px solid var(--success); } /* Cor verde para acerto */
-.w-stat.dmg { border-bottom: 2px solid var(--danger); }  /* Cor vermelha para dano */
+.w-stat.hit { border-bottom: 2px solid var(--success); } 
+.w-stat.dmg { border-bottom: 2px solid var(--danger); }  
 
 .w-label { font-size: 0.6rem; text-transform: uppercase; color: #888; margin-bottom: 2px; }
 .w-val { font-size: 0.95rem; font-weight: bold; color: #fff; font-family: 'Roboto Slab', serif; }
 
-/* --- LISTA DE FERRAMENTAS/OUTROS --- */
 .tools-list-area {
     display: flex;
     flex-direction: column;
@@ -912,12 +864,11 @@ main {
 
 .tool-item i {
     margin-right: 10px;
-    color: var(--arcane-blue); /* Diferencia ferramentas com cor arcana */
+    color: var(--arcane-blue); 
     width: 20px;
     text-align: center;
 }
 
-/* Container de Slots (dentro da aba) */
 .level-slots-header {
     background: rgba(0,0,0,0.3);
     padding: 8px 12px;
@@ -935,7 +886,6 @@ main {
     font-size: 0.75rem;
 }
 
-/* Reutiliza o estilo dos checkboxes, mas ajusta o tamanho se necessário */
 .level-slots-header .slots-wrapper {
     display: flex;
     gap: 8px;
@@ -947,7 +897,6 @@ main {
     border-width: 1px;
 }
 
-/* --- FOOTER --- */
 footer {
     text-align: center;
     padding: 2rem;
@@ -955,7 +904,7 @@ footer {
     font-size: 0.8rem;
     border-top: 1px solid #333;
 }
-/* --- DIÁRIO (JOURNAL) --- */
+
 .journal-trigger-container {
     text-align: center;
     margin: 2rem 0;
@@ -979,14 +928,13 @@ footer {
     box-shadow: 0 0 15px var(--bronze-dim);
 }
 
-/* O Overlay que cobre a tela */
 .journal-overlay {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
     background: rgba(0,0,0,0.95);
     z-index: 9999;
-    display: none; /* Oculto por padrão */
+    display: none; 
     overflow-y: auto;
     padding: 20px;
     animation: fadeIn 0.3s ease;
@@ -1020,7 +968,6 @@ footer {
     cursor: pointer;
 }
 
-/* Barra de Ferramentas */
 .journal-toolbar {
     display: flex;
     justify-content: space-between;
@@ -1047,7 +994,6 @@ footer {
 .journal-io .btn-save-json { border-color: var(--success); color: var(--success); }
 .journal-io .btn-load-json { border-color: var(--arcane-blue); color: var(--arcane-blue); }
 
-/* --- CARDS DE ENTRADA --- */
 .journal-content {
     display: flex;
     flex-direction: column;
@@ -1063,7 +1009,6 @@ footer {
     animation: slideDown 0.3s ease;
 }
 
-/* Cores por tipo */
 .entry-mission { border-left-color: var(--bronze); background: linear-gradient(90deg, #251d15, #1e1e24); }
 .entry-npc { border-left-color: var(--arcane-blue); }
 .entry-note { border-left-color: #888; }
@@ -1113,7 +1058,6 @@ footer {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- MOBILE --- */
 @media (max-width: 600px) {
     .character-identity h1 { font-size: 1.8rem; }
     .hero-grid { flex-direction: column; align-items: center; }
