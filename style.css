@@ -30,7 +30,7 @@ body {
             rgba(18,18,20,0.85) 20%,
             rgba(18,18,20,0.6) 100%
         ),
-        url("banner2.png");
+        url("banner3.jpg");
 
     background-size: cover;
     background-position: center top;
@@ -296,11 +296,52 @@ main {
 }
 
 /* COMPANHOS & STAT BLOCK */
-.companion-header { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
-.comp-img img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--arcane-blue); object-fit: cover; }
-.comp-status-bar { flex: 1; }
+.companion-banner-img {
+    width: 100%;
+    height: 180px; /* Altura fixa para dar o aspecto de banner */
+    object-fit: cover; /* Corta a imagem para preencher sem esticar */
+    object-position: center 20%; /* Foca um pouco mais no topo (rostos) */
+    
+    border: 2px solid var(--bronze);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Sombra mais marcada embaixo */
+    
+    margin-bottom: 1rem; /* Espaço entre o banner e a vida */
+    display: block;
+}
+
+/* Container apenas para a barra de vida, para separar do resto */
+.comp-status-wrapper {
+    margin-bottom: 1rem;
+}
+
+/* O resto do stat-block continua igual */
 .stat-block {
-    background: #18181b; border: 1px solid #444; border-radius: 4px; overflow: hidden;
+    background: #18181b; 
+    border: 1px solid #444; 
+    border-radius: 4px; 
+    overflow: hidden;
+}
+
+/* Estilo copiado da .char-img para ficar igual ao principal */
+.comp-img img { 
+    width: 200px; 
+    height: 250px; 
+    border-radius: 8px; /* Borda arredondada leve, não mais redonda (50%) */
+    border: 2px solid var(--bronze); 
+    box-shadow: 0 0 15px var(--arcane-glow);
+    object-fit: cover; 
+}
+
+.comp-status-bar { flex: 1; }
+
+/* Removemos o cursor pointer pois não é mais clicável para abrir */
+.stat-block {
+    background: #18181b; 
+    border: 1px solid #444; 
+    border-radius: 4px; 
+    overflow: hidden;
+    /* O summary foi removido, então o conteúdo aparece direto */
 }
 .stat-block summary {
     padding: 10px; background: #222; cursor: pointer; font-size: 0.9rem; font-weight: bold; color: var(--bronze); outline: none;

@@ -174,24 +174,20 @@
             <section class="panel companion-panel steel-defender">
                 <h3 class="section-title"><i class="fas fa-spider"></i> Defensor de Aço</h3>
                 
-                <div class="companion-header">
-                    <div class="comp-img">
-                        <img src="https://placehold.co/150x150/333/00ffff?text=Aranha" alt="Aranha Mecânica">
-                    </div>
-                    <div class="comp-status-bar">
-                        <div class="hp-container small">
-                            <div class="hp-label">PV <span id="defender-hp-text">--/--</span></div>
-                            <div class="hp-bar-bg"><div class="hp-bar-fill" id="defender-hp-bar"></div></div>
-                            <div class="hp-controls">
-                                <button class="btn-damage" onclick="modifyHP('defender', -1)">-</button>
-                                <button class="btn-heal" onclick="modifyHP('defender', 1)">+</button>
-                            </div>
+                <img src="defensor.png" alt="defensor de aço" class="companion-banner-img">
+
+                <div class="comp-status-wrapper">
+                    <div class="hp-container small">
+                        <div class="hp-label">PV <span id="defender-hp-text">--/--</span></div>
+                        <div class="hp-bar-bg"><div class="hp-bar-fill" id="defender-hp-bar"></div></div>
+                        <div class="hp-controls">
+                            <button class="btn-damage" onclick="modifyHP('defender', -1)">-</button>
+                            <button class="btn-heal" onclick="modifyHP('defender', 1)">+</button>
                         </div>
                     </div>
                 </div>
 
-                <details class="stat-block">
-                    <summary>Ver Ficha Técnica Completa</summary>
+                <div class="stat-block">
                     <div class="stat-content">
                         <p class="stat-meta">Medium construct, Neutral</p>
                         <div class="stat-header-line">
@@ -209,7 +205,7 @@
                         </div>
 
                         <div class="stat-traits">
-                            <p><strong>Imunidades:</strong> Veneno (Dano), Exausto/Envenenado/Encantado (Condição).</p>
+                            <p><strong>Imunidades:</strong> Veneno, Exausto/Envenenado/Encantado.</p>
                             <p><strong>Sentidos:</strong> Visão no escuro 18m, Percepção Passiva <span class="calc-pp-defender">14</span>.</p>
                             <p><strong>Vigilant:</strong> Não pode ser surpreendido.</p>
                         </div>
@@ -218,44 +214,39 @@
                             <h5>Ações</h5>
                             <div class="action-item">
                                 <strong>Force-Empowered Rend:</strong> 
-                                Ataque Corpo-a-corpo: <span class="dyn-spell-atk">+6</span> para acertar. 
-                                Acerto: 1d8 + <span class="dyn-pb">2</span> (force).
+                                +<span class="dyn-spell-atk"></span> acerto. Dano: 1d8 + <span class="dyn-pb"></span> force.
                             </div>
                             <div class="action-item">
                                 <strong>Repair (3/Dia):</strong> 
-                                Cura 2d8 + <span class="dyn-pb">2</span> PV em si mesmo ou constructo/objeto a 1,5m.
+                                Cura 2d8 + <span class="dyn-pb"></span> PV (toque).
                             </div>
                         </div>
 
                         <div class="stat-reactions">
                             <h5>Reações</h5>
-                            <p><strong>Deflect Attack:</strong> Impõe desvantagem num ataque contra uma criatura a 1,5m (que não seja o defensor).</p>
+                            <p><strong>Deflect Attack:</strong> Impõe desvantagem em ataque a aliado a 1,5m.</p>
                         </div>
                     </div>
-                </details>
+                </div>
             </section>
 
             <section class="panel companion-panel homunculus">
                 <h3 class="section-title"><i class="fas fa-crow"></i> Homúnculo</h3>
                 
-                <div class="companion-header">
-                    <div class="comp-img">
-                        <img src="https://placehold.co/150x150/333/cd7f32?text=Corvo" alt="Corvo Mecânico">
-                    </div>
-                    <div class="comp-status-bar">
-                        <div class="hp-container small">
-                            <div class="hp-label">PV <span id="homunculus-hp-text">--/--</span></div>
-                            <div class="hp-bar-bg"><div class="hp-bar-fill" id="homunculus-hp-bar"></div></div>
-                            <div class="hp-controls">
-                                <button class="btn-damage" onclick="modifyHP('homunculus', -1)">-</button>
-                                <button class="btn-heal" onclick="modifyHP('homunculus', 1)">+</button>
-                            </div>
+                <img src="humunculo.png" alt="Corvo Mecânico" class="companion-banner-img">
+
+                <div class="comp-status-wrapper">
+                    <div class="hp-container small">
+                        <div class="hp-label">PV <span id="homunculus-hp-text">--/--</span></div>
+                        <div class="hp-bar-bg"><div class="hp-bar-fill" id="homunculus-hp-bar"></div></div>
+                        <div class="hp-controls">
+                            <button class="btn-damage" onclick="modifyHP('homunculus', -1)">-</button>
+                            <button class="btn-heal" onclick="modifyHP('homunculus', 1)">+</button>
                         </div>
                     </div>
                 </div>
 
-                <details class="stat-block">
-                    <summary>Ver Ficha Técnica Completa</summary>
+                <div class="stat-block">
                     <div class="stat-content">
                         <p class="stat-meta">Tiny construct, Neutral</p>
                         <div class="stat-header-line">
@@ -272,25 +263,24 @@
                             <div><span>CAR</span><br>--</div> </div>
 
                         <div class="stat-traits">
-                            <p><strong>Imunidades:</strong> Veneno (Dano), Exausto/Envenenado (Condição).</p>
-                            <p><strong>Evasion:</strong> Se passar em teste de DES para meio dano, não sofre dano.</p>
+                            <p><strong>Imunidades:</strong> Veneno, Exausto/Envenenado.</p>
+                            <p><strong>Evasion:</strong> Sucesso em DES = 0 dano.</p>
                         </div>
 
                         <div class="stat-actions">
                             <h5>Ações</h5>
                             <div class="action-item">
                                 <strong>Force Strike:</strong> 
-                                Ataque à Distância (9m): <span class="dyn-spell-atk">+6</span> para acertar. 
-                                Acerto: 1d4 + <span class="dyn-pb">2</span> (force).
+                                Alcance 9m, +<span class="dyn-spell-atk"></span> acerto. Dano: 1d4 + <span class="dyn-pb"></span> force.
                             </div>
                         </div>
 
                         <div class="stat-reactions">
                             <h5>Reações</h5>
-                            <p><strong>Channel Magic:</strong> Entrega uma magia de toque conjurada por você (até 36m de você).</p>
+                            <p><strong>Channel Magic:</strong> Entrega sua magia de toque (até 36m).</p>
                         </div>
                     </div>
-                </details>
+                </div>
             </section>
 
             <section class="panel lore-panel">
