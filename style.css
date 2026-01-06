@@ -955,6 +955,163 @@ footer {
     font-size: 0.8rem;
     border-top: 1px solid #333;
 }
+/* --- DIÁRIO (JOURNAL) --- */
+.journal-trigger-container {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.btn-journal-open {
+    background: var(--bg-panel);
+    border: 2px solid var(--bronze);
+    color: var(--bronze);
+    padding: 10px 20px;
+    font-family: 'Cinzel', serif;
+    cursor: pointer;
+    font-size: 1.1rem;
+    border-radius: 4px;
+    transition: all 0.3s;
+}
+
+.btn-journal-open:hover {
+    background: var(--bronze);
+    color: #fff;
+    box-shadow: 0 0 15px var(--bronze-dim);
+}
+
+/* O Overlay que cobre a tela */
+.journal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95);
+    z-index: 9999;
+    display: none; /* Oculto por padrão */
+    overflow-y: auto;
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+.journal-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--bg-dark);
+    border: 1px solid var(--bronze);
+    border-radius: 8px;
+    padding: 2rem;
+    min-height: 80vh;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+.journal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--bronze-dim);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-close-journal {
+    background: transparent;
+    border: none;
+    color: var(--danger);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+/* Barra de Ferramentas */
+.journal-toolbar {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 2rem;
+    background: rgba(255,255,255,0.05);
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.journal-actions button, .journal-io button {
+    padding: 8px 12px;
+    border: 1px solid #444;
+    background: #2a2a30;
+    color: #eee;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.journal-actions button:hover { background: #444; color: var(--bronze); }
+.journal-io .btn-save-json { border-color: var(--success); color: var(--success); }
+.journal-io .btn-load-json { border-color: var(--arcane-blue); color: var(--arcane-blue); }
+
+/* --- CARDS DE ENTRADA --- */
+.journal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.journal-entry {
+    background: #1e1e24;
+    border-left: 5px solid #555;
+    padding: 15px;
+    border-radius: 4px;
+    position: relative;
+    animation: slideDown 0.3s ease;
+}
+
+/* Cores por tipo */
+.entry-mission { border-left-color: var(--bronze); background: linear-gradient(90deg, #251d15, #1e1e24); }
+.entry-npc { border-left-color: var(--arcane-blue); }
+.entry-note { border-left-color: #888; }
+.entry-loot { border-left-color: var(--success); }
+
+.entry-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.entry-title {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    width: 80%;
+    border-bottom: 1px dashed #444;
+}
+
+.entry-body {
+    width: 100%;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid #333;
+    color: #ccc;
+    padding: 10px;
+    min-height: 60px;
+    resize: vertical;
+    font-family: 'Roboto Slab', serif;
+}
+
+.btn-delete-entry {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: transparent;
+    border: none;
+    color: #555;
+    cursor: pointer;
+}
+.btn-delete-entry:hover { color: var(--danger); }
+
+.empty-msg { text-align: center; color: #666; font-style: italic; margin-top: 2rem; }
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
 /* --- MOBILE --- */
 @media (max-width: 600px) {

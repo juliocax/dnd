@@ -181,6 +181,39 @@
         </section>
     </main>
 
+    <div class="journal-trigger-container">
+    <button class="btn-journal-open" onclick="toggleJournal(true)">
+        <i class="fas fa-book-open"></i> Abrir Diário
+    </button>
+</div>
+
+    <section id="journal-view" class="journal-overlay">
+        <div class="journal-container">
+            <header class="journal-header">
+                <h2><i class="fas fa-feather-alt"></i> Diário de Campanha</h2>
+                <button class="btn-close-journal" onclick="toggleJournal(false)"><i class="fas fa-times"></i></button>
+            </header>
+
+            <div class="journal-toolbar">
+                <div class="journal-actions">
+                    <button onclick="addJournalEntry('mission')"><i class="fas fa-scroll"></i> Missão</button>
+                    <button onclick="addJournalEntry('npc')"><i class="fas fa-user-friends"></i> NPC</button>
+                    <button onclick="addJournalEntry('note')"><i class="fas fa-sticky-note"></i> Nota</button>
+                    <button onclick="addJournalEntry('loot')"><i class="fas fa-gem"></i> Loot</button>
+                </div>
+                <div class="journal-io">
+                    <button onclick="downloadJournal()" class="btn-save-json"><i class="fas fa-download"></i> Salvar JSON</button>
+                    <button onclick="triggerLoadJournal()" class="btn-load-json"><i class="fas fa-upload"></i> Carregar JSON</button>
+                    <input type="file" id="journal-upload" style="display: none;" accept=".json" onchange="loadJournal(this)">
+                </div>
+            </div>
+
+            <div id="journal-entries-list" class="journal-content">
+                <p class="empty-msg">Seu diário está vazio. Adicione notas acima ou carregue um arquivo.</p>
+            </div>
+        </div>
+    </section>
+
     <footer>
         <p>Ficha de <span id="footer-name">--</span> • Nvl <span id="footer-lvl">--</span></p>
     </footer>

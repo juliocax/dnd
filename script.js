@@ -9,8 +9,11 @@ const appState = {
     homunculus: { current: 0, max: 0 }
 };
 
+let journalData = [];
+
 document.addEventListener('DOMContentLoaded', () => {
     fetchData();
+    loadJournalFromLocal();
 });
 
 async function fetchData() {
@@ -20,7 +23,6 @@ async function fetchData() {
         
         const dataText = await response.text();
         
-        // Verifica se veio HTML (erro comum, mas seu link parece certo)
         if (dataText.includes("<!DOCTYPE") || dataText.includes("<html")) {
             alert("ERRO: O link gerou um site, não um CSV. Verifique se a planilha está publicada como CSV.");
             return;
@@ -28,7 +30,6 @@ async function fetchData() {
 
         const db = parseCSV(dataText);
         
-        // Verificação se leu algo útil
         if (!db.info.name && db.arsenal.length === 0) {
             console.log("Conteúdo recebido:", dataText);
             alert("O site conectou na planilha, mas não entendeu os dados. Verifique se as colunas A e B estão preenchidas corretamente (ex: 'info' na A, 'name' na B).");
@@ -387,33 +388,29 @@ function renderArsenal(containerId, list, spellAtk, intMod) {
     
     container.innerHTML = '';
 
-    // Separa itens em dois grupos
     const weapons = list.filter(item => item.isWeapon);
     const tools = list.filter(item => !item.isWeapon);
 
     let htmlContent = '';
 
-    // --- RENDERIZA ARMAS ---
     if (weapons.length > 0) {
         htmlContent += `<h4 class="arsenal-subtitle"><i class="fas fa-swords"></i> Armas</h4>`;
         htmlContent += `<div class="weapons-grid-area">`;
 
         weapons.forEach(item => {
-            // Cálculos
-            const bonus = parseInt(item.bonusAtk) || 0; // Garante número
+            const bonus = parseInt(item.bonusAtk) || 0; 
             const hitTotal = spellAtk + bonus;
             const hitDisplay = hitTotal >= 0 ? `+${hitTotal}` : hitTotal;
             
             const dmgBonusTotal = intMod + bonus;
             const dmgDisplay = dmgBonusTotal >= 0 ? `+${dmgBonusTotal}` : dmgBonusTotal;
 
-            // Define ícone baseado no nome ou tipo (opcional, simples)
-            let icon = 'fa-gavel'; // Ícone padrão (martelo/bater)
+            let icon = 'fa-gavel';
             const lowerName = item.name.toLowerCase();
             if(lowerName.includes('espada') || lowerName.includes('lâmina')) icon = 'fa-khanda';
             if(lowerName.includes('adaga')) icon = 'fa-dagger';
             if(lowerName.includes('arco') || lowerName.includes('besta')) icon = 'fa-bullseye';
-            if(lowerName.includes('lança')) icon = 'fa-pen-nib'; // Improviso visual ou fa-arrow-up
+            if(lowerName.includes('lança')) icon = 'fa-pen-nib'; 
             if(lowerName.includes('machado')) icon = 'fa-axe-battle'; 
 
             htmlContent += `
@@ -442,12 +439,10 @@ function renderArsenal(containerId, list, spellAtk, intMod) {
             `;
         });
 
-        htmlContent += `</div>`; // Fecha grid
+        htmlContent += `</div>`; 
     }
 
-    // --- RENDERIZA FERRAMENTAS/ITENS ---
     if (tools.length > 0) {
-        // Adiciona um espaçamento se já houver armas
         if (weapons.length > 0) htmlContent += `<div style="height: 20px;"></div>`;
         
         htmlContent += `<h4 class="arsenal-subtitle"><i class="fas fa-toolbox"></i> Equipamentos & Ferramentas</h4>`;
@@ -520,4 +515,136 @@ function toggleSlot(key, checkbox) {
     } else {
         localStorage.removeItem(key);
     }
+}
+
+function toggleJournal(show) {
+    const el = document.getElementById('journal-view');
+    el.style.display = show ? 'block' : 'none';
+    if(show) document.body.style.overflow = 'hidden'; 
+    else document.body.style.overflow = 'auto';
+}
+
+function addJournalEntry(type) {
+    const id = Date.now(); 
+    const entry = {
+        id: id,
+        type: type,
+        title: getDefaultTitle(type),
+        content: ""
+    };
+    
+    journalData.unshift(entry); 
+    renderJournal();
+    saveJournalToLocal();
+}
+
+function getDefaultTitle(type) {
+    switch(type) {
+        case 'mission': return 'Nova Missão';
+        case 'npc': return 'Novo NPC';
+        case 'loot': return 'Item / Tesouro';
+        default: return 'Nota Mental';
+    }
+}
+
+function deleteEntry(id) {
+    if(!confirm("Tem certeza que deseja apagar esta anotação?")) return;
+    journalData = journalData.filter(e => e.id !== id);
+    renderJournal();
+    saveJournalToLocal();
+}
+
+function updateEntry(id, field, value) {
+    const entry = journalData.find(e => e.id === id);
+    if(entry) {
+        entry[field] = value;
+        saveJournalToLocal();
+    }
+}
+
+function renderJournal() {
+    const container = document.getElementById('journal-entries-list');
+    container.innerHTML = '';
+
+    if (journalData.length === 0) {
+        container.innerHTML = '<p class="empty-msg">Nenhuma anotação. Adicione algo novo!</p>';
+        return;
+    }
+
+    journalData.forEach(entry => {
+        const div = document.createElement('div');
+        div.className = `journal-entry entry-${entry.type}`;
+
+        let icon = 'fa-sticky-note';
+        if(entry.type === 'mission') icon = 'fa-scroll';
+        if(entry.type === 'npc') icon = 'fa-user';
+        if(entry.type === 'loot') icon = 'fa-gem';
+
+        div.innerHTML = `
+            <div class="entry-header">
+                <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                    <i class="fas ${icon}" style="opacity:0.7"></i>
+                    <input type="text" class="entry-title" value="${entry.title}" 
+                           oninput="updateEntry(${entry.id}, 'title', this.value)" placeholder="Título...">
+                </div>
+                <button class="btn-delete-entry" onclick="deleteEntry(${entry.id})"><i class="fas fa-trash"></i></button>
+            </div>
+            <textarea class="entry-body" oninput="updateEntry(${entry.id}, 'content', this.value)" placeholder="Escreva os detalhes aqui...">${entry.content}</textarea>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function saveJournalToLocal() {
+    localStorage.setItem('rpg_journal_data', JSON.stringify(journalData));
+}
+
+function loadJournalFromLocal() {
+    const saved = localStorage.getItem('rpg_journal_data');
+    if(saved) {
+        try {
+            journalData = JSON.parse(saved);
+            renderJournal();
+        } catch(e) { console.error("Erro ao ler LocalStorage", e); }
+    }
+}
+
+function downloadJournal() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(journalData, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "diario_aventura.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+function triggerLoadJournal() {
+    document.getElementById('journal-upload').click();
+}
+
+function loadJournal(input) {
+    const file = input.files[0];
+    if(!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const loadedData = JSON.parse(e.target.result);
+            if(Array.isArray(loadedData)) {
+                if(confirm("Isso irá substituir as anotações atuais. Deseja continuar?")) {
+                    journalData = loadedData;
+                    renderJournal();
+                    saveJournalToLocal();
+                    alert("Diário carregado com sucesso!");
+                }
+            } else {
+                alert("Formato de JSON inválido.");
+            }
+        } catch(err) {
+            alert("Erro ao ler o arquivo: " + err.message);
+        }
+    };
+    reader.readAsText(file);
+    input.value = ''; 
 }
