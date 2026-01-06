@@ -1,0 +1,393 @@
+:root {
+    --bg-dark: #121214;
+    --bg-panel: #1e1e24;
+    --bronze: #cd7f32;
+    --bronze-dim: #8c5a2b;
+    --arcane-blue: #00ffff;
+    --arcane-glow: rgba(0, 255, 255, 0.3);
+    --text-main: #e1e1e6;
+    --text-muted: #a8a8b3;
+    --danger: #ff4d4d;
+    --success: #4dff88;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'Roboto Slab', serif;
+    line-height: 1.6;
+
+    background-image:
+        linear-gradient(
+            180deg,
+            rgba(18,18,20,0.95) 0%,
+            rgba(18,18,20,0.85) 20%,
+            rgba(18,18,20,0.6) 100%
+        ),
+        url("banner2.png");
+
+    background-size: cover;
+    background-position: center top;
+    background-attachment: fixed;
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Cinzel', serif;
+    color: var(--bronze);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* --- BANNER --- */
+.hero-section {
+    background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(30,30,36,1) 100%), 
+                url('banner.png'); 
+    background-size: cover;
+    background-position: center;
+    padding: 2rem;
+    border-bottom: 3px solid var(--bronze);
+    text-align: center;
+}
+
+.character-identity h1 {
+    font-size: 2.5rem;
+    text-shadow: 0 0 10px var(--bronze-dim);
+}
+
+.character-identity h2 {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.sub-info {
+    font-size: 0.9rem;
+    color: var(--arcane-blue);
+    font-weight: bold;
+}
+
+.hero-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.char-img {
+    width: 200px;
+    height: 250px;
+    object-fit: cover;
+    border: 2px solid var(--bronze);
+    border-radius: 8px;
+    box-shadow: 0 0 15px var(--arcane-glow);
+}
+
+.bio-stats {
+    text-align: left;
+    background: rgba(0,0,0,0.5);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 2px solid var(--arcane-blue);
+}
+
+/* --- ATRIBUTOS (NOVO) --- */
+.attributes-container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.attr-box {
+    background: linear-gradient(145deg, #25252b, #1a1a1e);
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 10px 5px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.highlight-attr {
+    border-color: var(--arcane-blue);
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.1);
+}
+
+.attr-label { font-size: 0.7rem; color: var(--text-muted); font-weight: bold; margin-bottom: 2px; }
+.attr-val { font-size: 1.2rem; color: #fff; font-family: 'Cinzel', serif; line-height: 1; }
+.attr-mod { font-size: 0.8rem; color: var(--bronze); font-weight: bold; margin-top: 2px; }
+
+.separator { border: 0; border-top: 1px solid #333; margin: 1.5rem 0; }
+
+/* --- PAINÉIS GERAIS --- */
+main {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    display: grid;
+    gap: 2rem;
+}
+
+.panel {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--bronze-dim);
+    border-radius: 8px;
+    padding: 1.5rem;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.panel::before {
+    /* Efeito de parafuso nos cantos */
+    content: '';
+    position: absolute;
+    top: 10px; left: 10px;
+    width: 8px; height: 8px;
+    background: var(--bronze);
+    border-radius: 50%;
+    box-shadow: 950px 0 0 var(--bronze); /* Ajustar via JS se quiser responsivo perfeito, mas funciona visualmente */
+}
+
+.section-title {
+    border-bottom: 1px solid var(--bronze);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 0 5px var(--arcane-glow);
+}
+
+/* --- ESTATÍSTICAS --- */
+.hp-container {
+    background: #111;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #333;
+    margin-bottom: 1rem;
+}
+
+.hp-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #eee;
+}
+
+.hp-bar-bg {
+    width: 100%;
+    height: 8px; /* Mais fino como pedido */
+    background: #222;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.hp-bar-fill {
+    height: 100%;
+    width: 100%;
+    /* A cor será definida via JS (HSL) */
+    background-color: #4dff88; 
+    transition: width 0.4s ease, background-color 0.4s ease;
+}
+
+.hp-controls { display: flex; justify-content: flex-end; gap: 8px; }
+.hp-controls button, .level-control-panel button {
+    background: #2a2a30; color: #fff; border: 1px solid #555;
+    width: 25px; height: 25px; cursor: pointer; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+}
+.hp-controls button:hover { background: #444; }
+.btn-heal { color: var(--success) !important; border-color: #2b5c3b !important; }
+.btn-damage { color: var(--danger) !important; border-color: #632b2b !important; }
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.stat-box {
+    background: rgba(255,255,255,0.05);
+    padding: 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #333;
+}
+
+.stat-box.highlight {
+    border-color: var(--arcane-blue);
+    box-shadow: 0 0 5px var(--arcane-glow);
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-weight: bold;
+    color: var(--text-main);
+}
+
+/* --- TRAÇOS E MAGIAS (Accordion) --- */
+.trait-item, .spell-list li {
+    background: rgba(0,0,0,0.2);
+    margin-bottom: 0.5rem;
+    padding: 0.8rem;
+    border-left: 3px solid var(--bronze-dim);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.trait-item:hover, .spell-list li:hover {
+    background: rgba(205, 127, 50, 0.1);
+}
+
+.trait-desc, .spell-list p.desc {
+    display: none; /* Escondido por padrão */
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    border-top: 1px dashed #444;
+    padding-top: 0.5rem;
+}
+
+.trait-item.active .trait-desc, 
+.spell-list li.active p.desc {
+    display: block; /* Aparece ao clicar */
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.tag-cloud span {
+    background: rgba(0, 255, 255, 0.1);
+    color: var(--arcane-blue);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    border: 1px solid var(--arcane-blue);
+}
+
+/* COMPANHOS & STAT BLOCK */
+.companion-header { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+.comp-img img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--arcane-blue); object-fit: cover; }
+.comp-status-bar { flex: 1; }
+.stat-block {
+    background: #18181b; border: 1px solid #444; border-radius: 4px; overflow: hidden;
+}
+.stat-block summary {
+    padding: 10px; background: #222; cursor: pointer; font-size: 0.9rem; font-weight: bold; color: var(--bronze); outline: none;
+}
+.stat-block summary:hover { background: #2a2a30; }
+.stat-content { padding: 15px; font-size: 0.9rem; color: #ccc; }
+.stat-meta { font-style: italic; color: #777; margin-bottom: 10px; font-size: 0.8rem; }
+.stat-header-line { display: flex; gap: 15px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #333; }
+
+.abilities-grid-mini {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; text-align: center; margin-bottom: 15px;
+    background: #111; padding: 10px; border-radius: 6px;
+}
+.abilities-grid-mini span { font-size: 0.7rem; color: var(--bronze); font-weight: bold; }
+.abilities-grid-mini div { font-size: 0.85rem; }
+
+.stat-actions h5, .stat-reactions h5 { color: var(--bronze); border-bottom: 1px solid #333; margin: 10px 0 5px; font-size: 0.9rem; }
+.action-item { margin-bottom: 8px; }
+.stat-traits p, .stat-reactions p { margin-bottom: 5px; font-size: 0.85rem; }
+
+/* SLOTS DE MAGIA (CHECKBOX CUSTOMIZADO) */
+.spell-slots-container {
+    background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; 
+    display: flex; align-items: center; gap: 15px; margin-bottom: 1.5rem; border: 1px solid #333;
+}
+.slot-label { font-weight: bold; color: var(--bronze); font-size: 0.9rem; }
+.slots-wrapper { display: flex; gap: 10px; }
+.slot-checkbox input { display: none; } /* Esconde o checkbox real */
+.slot-visual {
+    display: block; width: 20px; height: 20px;
+    background: #333; border: 2px solid #555; transform: rotate(45deg); /* Losango */
+    cursor: pointer; transition: all 0.3s;
+}
+/* Estado: Disponível (Checkado = Gasto, mas na UI vamos inverter visualmente ou tratar unchecked como cheio) 
+   Vamos tratar: Checkbox MARCADO = Slot GASTO (Apagado). Checkbox DESMARCADO = Slot CHEIO (Brilhando). */
+.slot-checkbox input:not(:checked) + .slot-visual {
+    background: var(--arcane-blue);
+    border-color: #fff;
+    box-shadow: 0 0 10px var(--arcane-blue);
+}
+.slot-checkbox input:checked + .slot-visual {
+    background: #111;
+    border-color: #333;
+}
+
+
+
+/* --- COMPANIONS --- */
+.companion-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.companion-panel.steel-defender { border-color: #555; }
+.companion-panel.homunculus { border-color: var(--arcane-blue); }
+
+.comp-img img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 3px solid #555;
+    object-fit: cover;
+}
+
+.comp-stats { flex: 1; }
+
+.mini-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* --- FOOTER --- */
+footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid #333;
+}
+
+/* --- MOBILE --- */
+@media (max-width: 600px) {
+    .character-identity h1 { font-size: 1.8rem; }
+    .hero-grid { flex-direction: column; align-items: center; }
+    .companion-grid { flex-direction: column; text-align: center; }
+}

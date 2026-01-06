@@ -1,0 +1,310 @@
+    <!DOCTYPE html>
+    <html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Torben Magnus - Ficha de Artífice</title>
+        <link rel="stylesheet" href="style.css">
+        <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Roboto+Slab:wght@300;500;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    </head>
+    <body>
+
+        <header class="hero-section">
+            <div class="character-identity">
+                <h1>Torben Magnus</h1>
+                <h2>Ironflange de Stenberg</h2>
+                <div class="sub-info">
+                    <span>Nível <span id="char-level-display">3</span></span> • 
+                    <span>Gnomo das Rochas</span> • 
+                    <span>Artífice (Battle Smith)</span>
+                </div>
+            </div>
+            
+            <div class="hero-grid">
+                <div class="portrait-container">
+                    <img src="perfil.png" alt="Torben Magnus" class="char-img">
+                </div>
+                
+                <div class="bio-stats">
+                    <div class="bio-row"><strong>Antecedente:</strong> Guild Artisan (Gond)</div>
+                    <div class="bio-row"><strong>Alinhamento:</strong> Leal e Bom</div>
+                    <div class="bio-row"><strong>Idade:</strong> 40 Anos</div>
+                    <div class="bio-row"><strong>Altura / Peso:</strong> 90cm / 23kg</div>
+                    <div class="bio-row"><strong>Aparência:</strong> Homem negro, gola alta seda, avental couro.</div>
+                    
+                    <div class="level-control-panel">
+                        <label>Nível:</label>
+                        <button onclick="changeLevel(-1)">-</button>
+                        <span id="level-val">3</span>
+                        <button onclick="changeLevel(1)">+</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <section class="panel stats-panel">
+                <h3 class="section-title"><i class="fas fa-chart-bar"></i> Atributos</h3>
+                
+                <div class="attributes-container">
+                    <div class="attr-box"><span class="attr-label">FOR</span><span class="attr-val" id="score-str">10</span><span class="attr-mod" id="mod-str">+0</span></div>
+                    <div class="attr-box"><span class="attr-label">DES</span><span class="attr-val" id="score-dex">10</span><span class="attr-mod" id="mod-dex">+0</span></div>
+                    <div class="attr-box"><span class="attr-label">CON</span><span class="attr-val" id="score-con">10</span><span class="attr-mod" id="mod-con">+0</span></div>
+                    <div class="attr-box highlight-attr"><span class="attr-label">INT</span><span class="attr-val" id="score-int">10</span><span class="attr-mod" id="mod-int">+0</span></div>
+                    <div class="attr-box"><span class="attr-label">SAB</span><span class="attr-val" id="score-wis">10</span><span class="attr-mod" id="mod-wis">+0</span></div>
+                    <div class="attr-box"><span class="attr-label">CAR</span><span class="attr-val" id="score-cha">10</span><span class="attr-mod" id="mod-cha">+0</span></div>
+                </div>
+
+                <hr class="separator">
+
+                <div class="hp-container">
+                    <div class="hp-label">
+                        <span>PV Torben</span>
+                        <span class="hp-numbers"><span id="current-hp">18</span> / <span id="max-hp">18</span></span>
+                    </div>
+                    <div class="hp-bar-bg">
+                        <div class="hp-bar-fill" id="hp-bar"></div>
+                    </div>
+                    <div class="hp-controls">
+                        <button class="btn-damage" onclick="modifyHP('player', -1)"><i class="fas fa-minus"></i></button>
+                        <button class="btn-heal" onclick="modifyHP('player', 1)"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box"><span class="stat-label">Classe de Armadura</span><span class="stat-value">16</span></div>
+                    <div class="stat-box"><span class="stat-label">Iniciativa</span><span class="stat-value">0</span></div>
+                    <div class="stat-box"><span class="stat-label">Desl.</span><span class="stat-value">7.5m</span></div>
+                    <div class="stat-box highlight"><span class="stat-label">CD Magia</span><span class="stat-value" id="spell-dc">14</span></div>
+                    <div class="stat-box highlight"><span class="stat-label">Atk Mágico</span><span class="stat-value" id="spell-atk">+4</span></div>
+                    <div class="stat-box"><span class="stat-label">Prof.</span><span class="stat-value" id="prof-bonus">+2</span></div>
+                </div>
+            </section>
+
+            <section class="panel spells-panel">
+                <h3 class="section-title"><i class="fas fa-book-sparkles"></i> Grimório</h3>
+                
+                <div class="spell-slots-container">
+                    <span class="slot-label">Slots Nível 1:</span>
+                    <div class="slots-wrapper">
+                        <label class="slot-checkbox">
+                            <input type="checkbox">
+                            <span class="slot-visual"></span>
+                        </label>
+                        <label class="slot-checkbox">
+                            <input type="checkbox">
+                            <span class="slot-visual"></span>
+                        </label>
+                        <label class="slot-checkbox">
+                            <input type="checkbox">
+                            <span class="slot-visual"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="spells-category">
+                    <h4>Truques</h4>
+                    <ul class="spell-list">
+                        <li onclick="toggleDesc(this)"><strong>Mending</strong><p class="desc">Tempo de Conjuração: 1 minuto 
+    Alcance: Toque 
+    Duração: Instantânea  
+    Essa magia repara um única quebra ou fissura em um 
+    objeto que você tocar, como um elo quebrado de uma 
+    corrente, duas metades de uma chave partida, um manto 
+    rasgado ou o vazamento em um odre. Contanto que a 
+    quebra ou fissura não tenha mais de 30 centímetros em 
+    qualquer dimensão, você pode remenda-la, não deixando 
+    qualquer vestígio do dano anterior. 
+    Essa magia pode reparar fisicamente um item mágico 
+    ou constructo, mas a magia não irá restaurar a magia em 
+    tais objetos.</p></li>
+                        <li onclick="toggleDesc(this)"><strong>Fire Bolt</strong><p class="desc">1d10 Fogo (36m).</p></li>
+                        <li onclick="toggleDesc(this)"><strong>Guidance</strong><p class="desc">+1d4 Teste Habilidade.</p></li>
+                    </ul>
+                </div>
+                <div class="spells-category">
+                    <h4>Magias Nível 1</h4>
+                    <ul class="spell-list">
+                        <li onclick="toggleDesc(this)"><strong>Shield</strong><p class="desc">Reação, +5 CA.</p></li>
+                        <li onclick="toggleDesc(this)"><strong>Cure Wounds</strong><p class="desc">1d8 + Int Cura.</p></li>
+                        <li onclick="toggleDesc(this)"><strong>Heroism</strong><p class="desc">Imune medo, HP temp.</p></li>
+                        <li onclick="toggleDesc(this)"><strong>Detect Magic</strong><p class="desc">Ritual, detecta auras.</p></li>
+                        <li onclick="toggleDesc(this)"><strong>Identify</strong><p class="desc">Ritual, propriedades item.</p></li>
+                        <li onclick="toggleDesc(this)"><strong>Grease</strong><p class="desc">Área escorregadia (DEX save).</p></li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="panel weapons-panel">
+                <h3 class="section-title"><i class="fas fa-hammer"></i> Arsenal & Ferramentas</h3>
+                
+                <div class="weapons-grid">
+                    <div class="weapon-card main-weapon">
+                        <div class="weapon-icon"><i class="fas fa-gavel"></i></div>
+                        <div class="weapon-info">
+                            <h4>Martelo de Batalha (Infundido)</h4>
+                            <span class="weapon-type">Mágico • +1 Atk/Dano</span>
+                        </div>
+                        <div class="weapon-stats">
+                            <div class="w-hit">
+                                <span class="label">Acerto</span>
+                                <span class="val" id="weapon-hit-val">+5</span>
+                            </div>
+                            <div class="w-dmg">
+                                <span class="label">Dano</span>
+                                <span class="val">1d8 + <span class="dyn-int-plus-one">5</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="spells-category">
+                    <h4><br>Ferramentas</h4>
+                        <ul class="spell-list">
+                            <li onclick="toggleDesc(this)"><strong>Ladrão (Thieves)</strong><p class="desc">Ladrão</p></li>
+                            <li onclick="toggleDesc(this)"><strong>Latoeiro (Tinker)</strong><p class="desc">Latoeiro</p></li>
+                            <li onclick="toggleDesc(this)"><strong>Heroism</strong><p class="desc">Heroism</p></li>
+                            <li onclick="toggleDesc(this)"><strong>Ferreiro (Smith)</strong><p class="desc">Ferreiro</p></li>
+                            <li onclick="toggleDesc(this)"><strong>Joalheiro (Jeweler)</strong><p class="desc">Joalheiro.</p></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel companion-panel steel-defender">
+                <h3 class="section-title"><i class="fas fa-spider"></i> Defensor de Aço</h3>
+                
+                <div class="companion-header">
+                    <div class="comp-img">
+                        <img src="https://placehold.co/150x150/333/00ffff?text=Aranha" alt="Aranha Mecânica">
+                    </div>
+                    <div class="comp-status-bar">
+                        <div class="hp-container small">
+                            <div class="hp-label">PV <span id="defender-hp-text">--/--</span></div>
+                            <div class="hp-bar-bg"><div class="hp-bar-fill" id="defender-hp-bar"></div></div>
+                            <div class="hp-controls">
+                                <button class="btn-damage" onclick="modifyHP('defender', -1)">-</button>
+                                <button class="btn-heal" onclick="modifyHP('defender', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <details class="stat-block">
+                    <summary>Ver Ficha Técnica Completa</summary>
+                    <div class="stat-content">
+                        <p class="stat-meta">Medium construct, Neutral</p>
+                        <div class="stat-header-line">
+                            <span><strong>CA:</strong> 15 (Natural)</span>
+                            <span><strong>Desl:</strong> 12m (40ft)</span>
+                        </div>
+                        
+                        <div class="abilities-grid-mini">
+                            <div><span>FOR</span><br>14 (+2)</div>
+                            <div><span>DES</span><br>12 (+1)</div>
+                            <div><span>CON</span><br>14 (+2)</div>
+                            <div><span>INT</span><br>4 (-3)</div>
+                            <div><span>SAB</span><br>10 (+0)</div>
+                            <div><span>CAR</span><br>6 (-2)</div>
+                        </div>
+
+                        <div class="stat-traits">
+                            <p><strong>Imunidades:</strong> Veneno (Dano), Exausto/Envenenado/Encantado (Condição).</p>
+                            <p><strong>Sentidos:</strong> Visão no escuro 18m, Percepção Passiva <span class="calc-pp-defender">14</span>.</p>
+                            <p><strong>Vigilant:</strong> Não pode ser surpreendido.</p>
+                        </div>
+
+                        <div class="stat-actions">
+                            <h5>Ações</h5>
+                            <div class="action-item">
+                                <strong>Force-Empowered Rend:</strong> 
+                                Ataque Corpo-a-corpo: <span class="dyn-spell-atk">+6</span> para acertar. 
+                                Acerto: 1d8 + <span class="dyn-pb">2</span> (force).
+                            </div>
+                            <div class="action-item">
+                                <strong>Repair (3/Dia):</strong> 
+                                Cura 2d8 + <span class="dyn-pb">2</span> PV em si mesmo ou constructo/objeto a 1,5m.
+                            </div>
+                        </div>
+
+                        <div class="stat-reactions">
+                            <h5>Reações</h5>
+                            <p><strong>Deflect Attack:</strong> Impõe desvantagem num ataque contra uma criatura a 1,5m (que não seja o defensor).</p>
+                        </div>
+                    </div>
+                </details>
+            </section>
+
+            <section class="panel companion-panel homunculus">
+                <h3 class="section-title"><i class="fas fa-crow"></i> Homúnculo</h3>
+                
+                <div class="companion-header">
+                    <div class="comp-img">
+                        <img src="https://placehold.co/150x150/333/cd7f32?text=Corvo" alt="Corvo Mecânico">
+                    </div>
+                    <div class="comp-status-bar">
+                        <div class="hp-container small">
+                            <div class="hp-label">PV <span id="homunculus-hp-text">--/--</span></div>
+                            <div class="hp-bar-bg"><div class="hp-bar-fill" id="homunculus-hp-bar"></div></div>
+                            <div class="hp-controls">
+                                <button class="btn-damage" onclick="modifyHP('homunculus', -1)">-</button>
+                                <button class="btn-heal" onclick="modifyHP('homunculus', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <details class="stat-block">
+                    <summary>Ver Ficha Técnica Completa</summary>
+                    <div class="stat-content">
+                        <p class="stat-meta">Tiny construct, Neutral</p>
+                        <div class="stat-header-line">
+                            <span><strong>CA:</strong> 13 (Natural)</span>
+                            <span><strong>Desl:</strong> 6m, Voo 9m</span>
+                        </div>
+
+                        <div class="abilities-grid-mini">
+                            <div><span>FOR</span><br>4 (-3)</div>
+                            <div><span>DES</span><br>15 (+2)</div>
+                            <div><span>CON</span><br>12 (+1)</div>
+                            <div><span>INT</span><br>10 (+0)</div>
+                            <div><span>SAB</span><br>10 (+0)</div>
+                            <div><span>CAR</span><br>--</div> </div>
+
+                        <div class="stat-traits">
+                            <p><strong>Imunidades:</strong> Veneno (Dano), Exausto/Envenenado (Condição).</p>
+                            <p><strong>Evasion:</strong> Se passar em teste de DES para meio dano, não sofre dano.</p>
+                        </div>
+
+                        <div class="stat-actions">
+                            <h5>Ações</h5>
+                            <div class="action-item">
+                                <strong>Force Strike:</strong> 
+                                Ataque à Distância (9m): <span class="dyn-spell-atk">+6</span> para acertar. 
+                                Acerto: 1d4 + <span class="dyn-pb">2</span> (force).
+                            </div>
+                        </div>
+
+                        <div class="stat-reactions">
+                            <h5>Reações</h5>
+                            <p><strong>Channel Magic:</strong> Entrega uma magia de toque conjurada por você (até 36m de você).</p>
+                        </div>
+                    </div>
+                </details>
+            </section>
+
+            <section class="panel lore-panel">
+                <h3 class="section-title"><i class="fas fa-scroll"></i> História</h3>
+                <div class="lore-content">
+                    <p>Torben Magnus busca redenção. Após plagiar um componente vital para seu Defensor de Aço, a culpa e as dívidas o forçaram a voltar para sua loja. Agora, ele treina sua sobrinha Linnea e busca provar seu valor genuíno.</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Ficha de Torben Magnus • Artífice Nvl <span id="footer-lvl">3</span></p>
+        </footer>
+
+        <script src="script.js"></script>
+    </body>
+    </html>
