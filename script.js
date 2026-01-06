@@ -46,8 +46,6 @@ async function fetchData() {
 
 function parseCSV(csvText) {
     const lines = csvText.split(/\r?\n/);
-    
-    // Detecta separador (; ou ,)
     let separator = ',';
     const sample = lines.find(l => l.length > 5);
     if (sample && sample.includes(';')) separator = ';';
@@ -56,7 +54,8 @@ function parseCSV(csvText) {
         info: {}, 
         attributes: { str:10, dex:10, con:10, int:10, wis:10, cha:10 },
         stats: { maxHp: 0, ac: 0, speed: "", initiative: 0, proficiencyBonus: 2 },
-        spells: { cantrips: [], level1: [] }, 
+        spells: Array.from({ length: 10 }, () => []),
+        spellSlots: Array(10).fill(0), 
         arsenal: [],
         companions: { 
             defender: { name: "Defensor", maxHp: 0, texts: {}, traits: [], actions: [], reactions: [] }, 
@@ -68,78 +67,62 @@ function parseCSV(csvText) {
         if (!row.trim()) return;
         const cols = row.split(separator);
         
-        // MUDANÇA 2: Força tudo para minúsculo na leitura das chaves
         const type = cols[0] ? cols[0].trim().toLowerCase() : "";
-        const keyRaw = cols[1] ? cols[1].trim() : "";
-        const key = keyRaw.toLowerCase(); // Chave sempre minúscula (defender, str, etc)
-
-        // Nas colunas de texto (C e D), mantemos a formatação original (Maiúsculas/Minúsculas)
-        // Lógica para CSV que pode ter virgulas no texto:
+        const keyRaw = cols[1] ? cols[1].trim() : ""; 
+        const key = keyRaw.toLowerCase();
+        
         let name = "";
         let desc = "";
 
         if (separator === ';') {
-            name = cols[2] ? cols[2].trim() : "";
+            name = cols[2] ? cols[2].trim() : ""; 
             desc = cols[3] ? cols[3].trim() : "";
         } else {
-            // Se for vírgula, tenta ser inteligente se o texto quebrou
             name = cols[2] ? cols[2].trim() : "";
-            desc = cols.slice(3).join(',').trim(); // Junta o resto se tiver virgulas na descrição
+            desc = cols.slice(3).join(',').trim();
         }
         
-        // --- PARSER ---
+        if(type === 'info') { db.info[keyRaw] = name; if(key === 'name' && name === "") db.info.name = desc; }
+        
+        // --- CORREÇÃO AQUI (Lê atributo da col C ou D) ---
+        if(type === 'attr') {
+            // Tenta ler o número da coluna C (name), se falhar, tenta da D (desc)
+            const val = parseInt(name) || parseInt(desc) || 10;
+            db.attributes[key] = val;
+        }
 
-        // Info e Atributos
-        if(type === 'info') db.info[keyRaw] = name; // Usa keyRaw para info (pode ter camelCase)
-        // Correção específica para 'name' que as vezes o user põe na coluna C ou D
-        if(type === 'info' && key === 'name' && name === "") db.info.name = desc;
-
-        if(type === 'attr') db.attributes[key] = parseInt(name) || 10;
         if(type === 'stat') db.stats[key] = (key === 'speed') ? name : parseInt(name);
-        
-        // Magias
+
         if(type.startsWith('spell')) {
-            const list = type === 'spell0' ? db.spells.cantrips : db.spells.level1;
-            // Verifica se tem nome, senão ignora
-            if(keyRaw) list.push({ name: keyRaw, desc: name }); 
-            // Nota: Se usou a tabela nova, o NOME tá na coluna B (keyRaw) e DESC na C (name)
+            const levelStr = type.replace('spell', '');
+            const level = parseInt(levelStr);
+            if(!isNaN(level) && level >= 0 && level <= 9 && keyRaw) {
+                db.spells[level].push({ name: keyRaw, desc: name });
+            }
         }
 
-        // Armas
-        if(type === 'weapon') {
-            // Padrão novo: A=weapon, B=Nome, C=Tipo, D=Dano
-            const isWpn = desc.toLowerCase().includes('d');
-            db.arsenal.push({ 
-                name: keyRaw, // Nome da arma (Coluna B)
-                type: name,   // Tipo (Coluna C)
-                isWeapon: isWpn, 
-                damageDie: desc, // Dano (Coluna D)
-                bonusAtk: 1 
-            });
-        }
-        
-        // --- PETS (Lógica Nova) ---
-        if(type.startsWith('pet')) {
-            let pet = db.companions[key]; // key agora é 'defender' ou 'homunculus' (minúsculo)
+        if (type === 'slots') {
+            const lvl = parseInt(keyRaw); 
+            const count = parseInt(name); // Slots precisam estar na Coluna C (Name)
             
+            if (!isNaN(lvl) && !isNaN(count) && lvl >= 0 && lvl <= 9) {
+                db.spellSlots[lvl] = count;
+            }
+        }
+
+        // ... resto do código (weapon, pet) continua igual ...
+        if(type === 'weapon') {
+            const isWpn = desc.toLowerCase().includes('d');
+            db.arsenal.push({ name: keyRaw, type: name, isWeapon: isWpn, damageDie: desc, bonusAtk: 1 });
+        }
+        if(type.startsWith('pet')) {
+            let pet = db.companions[key];
             if(pet) {
-                if(type === 'pet') {
-                    pet.name = name; // Nome visual (Defensor de Aço)
-                    pet.maxHp = parseInt(desc) || 0; // Vida numérica
-                }
-                else if(type === 'pet_txt') {
-                    // Salva chaves como 'ac', 'speed'
-                    pet.texts[name.toLowerCase()] = desc;
-                }
-                else if(type === 'pet_trait') {
-                    pet.traits.push({ title: name, text: desc });
-                }
-                else if(type === 'pet_action') {
-                    pet.actions.push({ title: name, text: desc });
-                }
-                else if(type === 'pet_reaction') {
-                    pet.reactions.push({ title: name, text: desc });
-                }
+                if(type === 'pet') { pet.name = name; pet.maxHp = parseInt(desc) || 0; }
+                else if(type === 'pet_txt') { pet.texts[name.toLowerCase()] = desc; }
+                else if(type === 'pet_trait') { pet.traits.push({ title: name, text: desc }); }
+                else if(type === 'pet_action') { pet.actions.push({ title: name, text: desc }); }
+                else if(type === 'pet_reaction') { pet.reactions.push({ title: name, text: desc }); }
             }
         }
     });
@@ -149,7 +132,6 @@ function parseCSV(csvText) {
 function loadDataToUI(d) {
     if (!d.info.name && !d.info.Name) return; 
 
-    // Tenta pegar o nome de várias formas caso a planilha tenha mudado
     const charName = d.info.name || d.info.Name || "Personagem";
 
     setText('char-name', charName);
@@ -178,82 +160,216 @@ function loadDataToUI(d) {
     const pb = Math.ceil(lvl / 4) + 1;
     const spellAtk = intMod + pb;
     const spellDc = 8 + intMod + pb;
-
-    setText('stat-ac', d.stats.ac);
-    setText('stat-init', d.stats.initiative);
-    setText('stat-speed', d.stats.speed);
-    setText('prof-bonus', `+${pb}`);
-    setText('spell-atk', `+${spellAtk}`);
+    
+    // Atualiza Displays de Magia
     setText('spell-dc', spellDc);
+    setText('spell-atk', spellAtk >= 0 ? `+${spellAtk}` : spellAtk);
+    setText('prof-bonus', `+${pb}`);
+    setText('stat-ac', d.stats.ac);
+    setText('stat-init', d.stats.initiative >= 0 ? `+${d.stats.initiative}` : d.stats.initiative);
+    setText('stat-speed', d.stats.speed);
 
-    document.querySelectorAll('.dyn-pb').forEach(el => el.innerText = pb);
-    document.querySelectorAll('.dyn-spell-atk').forEach(el => el.innerText = spellAtk);
-
-    renderList('list-cantrips', d.spells.cantrips);
-    renderList('list-level1', d.spells.level1);
+    // --- CORREÇÃO AQUI (Passando d.spellSlots) ---
+    renderSpellbook(d.spells, d.spellSlots);
+    
     renderArsenal('weapons-container', d.arsenal, spellAtk, intMod);
-
     renderPetCard('defender', d.companions.defender);
     renderPetCard('homunculus', d.companions.homunculus);
 }
 
+function renderSpellbook(allSpells, slotCounts) {
+    const container = document.getElementById('spellbook-container');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    // REMOVIDO: const SLOTS_CONFIG = [...]  <- Isso estava forçando os valores errados
+
+    allSpells.forEach((spells, level) => {
+        // Pega a quantidade vinda da planilha. Se não tiver nada, é 0.
+        const slotsNesseNivel = slotCounts[level] || 0;
+
+        // Renderiza se tiver magia OU se tiver slots definidos
+        if (spells.length > 0 || slotsNesseNivel > 0) {
+            
+            const isCantrip = level === 0;
+            const title = isCantrip ? "Truques (Nível 0)" : `Magias de Nível ${level}`;
+            
+            const wrapper = document.createElement('div');
+            
+            const header = document.createElement('div');
+            header.className = 'spell-level-header';
+            header.innerHTML = `<span>${title}</span> <i class="fas fa-chevron-down"></i>`;
+            
+            const content = document.createElement('div');
+            content.className = 'spell-level-content';
+            
+            // Gera os slots baseados no número da planilha
+            if (!isCantrip && slotsNesseNivel > 0) {
+                const slotsDiv = document.createElement('div');
+                slotsDiv.className = 'level-slots-header';
+                
+                let checkboxesHtml = '';
+                for(let i=0; i < slotsNesseNivel; i++) {
+                    checkboxesHtml += `
+                        <label class="slot-checkbox">
+                            <input type="checkbox">
+                            <span class="slot-visual"></span>
+                        </label>
+                    `;
+                }
+
+                slotsDiv.innerHTML = `
+                    <span>Slots (${slotsNesseNivel})</span>
+                    <div class="slots-wrapper">
+                        ${checkboxesHtml}
+                    </div>
+                `;
+                content.appendChild(slotsDiv);
+            }
+
+            const ul = document.createElement('ul');
+            ul.className = 'spell-list';
+            
+            if (spells.length === 0) {
+                 ul.innerHTML = '<li style="color:#666; font-style:italic; padding:10px;">Nenhuma magia preparada.</li>';
+            } else {
+                spells.forEach(spell => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${spell.name}</strong><p class="desc">${spell.desc}</p>`;
+                    li.onclick = (e) => {
+                        e.stopPropagation();
+                        li.classList.toggle('active');
+                    };
+                    ul.appendChild(li);
+                });
+            }
+
+            content.appendChild(ul);
+            wrapper.appendChild(header);
+            wrapper.appendChild(content);
+            container.appendChild(wrapper);
+
+            header.addEventListener('click', () => {
+                header.classList.toggle('active');
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = (content.scrollHeight + 50) + "px"; 
+                }
+            });
+        }
+    });
+}
+
 function renderPetCard(petId, petData) {
-    setText(petId === 'defender' ? 'def-name' : 'hom-name', petData.name);
+    // Atualiza nome no título (se houver elemento externo)
+    // Nota: O novo layout renderiza o nome DENTRO do card, mas mantemos o update externo por segurança
+    const extTitle = document.getElementById(petId === 'defender' ? 'def-name' : 'hom-name');
+    if(extTitle) extTitle.innerText = petData.name;
+
     if(petData.maxHp > 0) appState[petId].max = petData.maxHp;
 
     const cssClass = petId === 'defender' ? '.steel-defender' : '.homunculus';
-    const container = document.querySelector(`${cssClass} .stat-content`);
+    const panel = document.querySelector(`${cssClass}`);
     
-    if(!container) return;
+    if(!panel) return;
 
-    let html = '';
+    // Dados de texto
     const txt = petData.texts;
-    // Tenta pegar em ingles ou portugues
     const ac = txt['ca'] || txt['ac'] || txt['armor class'] || '--';
     const speed = txt['desl'] || txt['desl.'] || txt['speed'] || '--';
-    const stats = txt['stats'] || txt['atributos'] || '--';
+    const stats = txt['stats'] || txt['atributos'] || '--'; // ex: "FOR 14 (+2) ..."
     const skills = txt['pericias'] || txt['skills'] || '';
     const immun = txt['imunes'] || txt['immunities'] || '';
     const senses = txt['sentidos'] || txt['senses'] || '';
 
-    html += `
-        <div class="stat-header-line">
-            <span><strong>CA:</strong> ${ac}</span>
-            <span><strong>Desl:</strong> ${speed}</span>
+    // Ícone baseado no tipo para dar um charme
+    const iconClass = petId === 'defender' ? 'fa-shield-alt' : 'fa-eye';
+
+    // Montagem do HTML Novo
+    let html = ``;
+
+    // 1. HEADER (Imagem + Título) - A imagem deve estar no HTML, mas vamos reorganizar ou assumir que ela existe.
+    // Para simplificar e garantir que fique bonito, vamos injetar a estrutura completa dentro do Painel,
+    // exceto o título H3 original que a gente esconde via CSS ou substitui.
+    
+    // Vamos reconstruir o conteúdo interno do painel preservando a imagem original se possível, 
+    // ou apenas injetando o HTML do corpo.
+    // Estratégia: Vamos substituir o innerHTML de um container específico ou criar um novo.
+    
+    // Como o seu HTML tem uma estrutura fixa, vamos focar em preencher o .stat-content 
+    // E mover a imagem/barra de vida para o lugar certo visualmente.
+    
+    // Para ficar MUITO bonito, vou sugerir que você altere o HTML do container stats,
+    // mas aqui via JS vou gerar o bloco de "Dados do Monstro".
+    
+    const container = panel.querySelector('.stat-block .stat-content');
+    
+    // Se não achar o container padrão, aborta
+    if(!container) return;
+
+    // Limpa container antigo
+    container.innerHTML = '';
+
+    // --- BLOCO DE STATUS (GRID) ---
+    let statsHtml = `
+        <div class="pet-stats-grid">
+            <div class="pet-stat-box">
+                <span class="pet-stat-label">Classe de Armadura</span>
+                <span class="pet-stat-val">${ac}</span>
+            </div>
+            <div class="pet-stat-box">
+                <span class="pet-stat-label">Deslocamento</span>
+                <span class="pet-stat-val">${speed}</span>
+            </div>
+             <div class="pet-stat-box">
+                <span class="pet-stat-label">Tipo</span>
+                <span class="pet-stat-val"><i class="fas ${iconClass}"></i></span>
+            </div>
         </div>
-        <div class="stat-header-line" style="margin-top:5px; font-size:0.85em; color:#ccc;">
-            <span>${stats}</span>
+        
+        <div class="pet-stat-box" style="width:100%; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding:5px; border-radius:4px;">
+             <span class="pet-stat-label" style="display:block; margin-bottom:2px;">Atributos</span>
+             <span style="font-size:0.8rem; color:#aaa;">${stats}</span>
         </div>
     `;
 
-    html += `<div class="stat-actions" style="margin-top: 10px; font-size: 0.9em;">`;
-    
-    if(skills) html += `<p><strong>Perícias:</strong> ${skills}</p>`;
-    if(immun)  html += `<p><strong>Imunidades:</strong> ${immun}</p>`;
-    if(senses) html += `<p><strong>Sentidos:</strong> ${senses}</p>`;
-    
-    html += `<hr style="border-color: #444; margin: 8px 0;">`;
+    // --- DETALHES MENORES ---
+    let detailsHtml = `<div class="pet-details-small">`;
+    if(skills) detailsHtml += `<div><strong>Perícias:</strong> ${skills}</div>`;
+    if(immun)  detailsHtml += `<div><strong>Imunidades:</strong> ${immun}</div>`;
+    if(senses) detailsHtml += `<div><strong>Sentidos:</strong> ${senses}</div>`;
+    detailsHtml += `</div>`;
 
-    petData.traits.forEach(t => {
-        html += `<div class="action-item"><strong>${t.title}</strong> ${t.text}</div>`;
-    });
+    // --- AÇÕES & TRAÇOS ---
+    let actionsHtml = `<div class="pet-actions-section">`;
 
+    // Traços
+    if(petData.traits.length > 0) {
+        petData.traits.forEach(t => {
+            actionsHtml += `<div class="pet-action-item"><strong>${t.title}</strong> ${t.text}</div>`;
+        });
+    }
+
+    // Ações
     if(petData.actions.length > 0) {
-        html += `<h5 style="margin-top:8px; color:var(--text-main);">Ações</h5>`;
+        actionsHtml += `<h5>Ações</h5>`;
         petData.actions.forEach(a => {
-            html += `<div class="action-item"><strong>${a.title}</strong> ${a.text}</div>`;
+            actionsHtml += `<div class="pet-action-item"><strong>${a.title}</strong> ${a.text}</div>`;
         });
     }
 
+    // Reações
     if(petData.reactions.length > 0) {
-        html += `<h5 style="margin-top:8px; color:var(--text-main);">Reações</h5>`;
+        actionsHtml += `<h5>Reações</h5>`;
         petData.reactions.forEach(r => {
-            html += `<div class="action-item"><strong>${r.title}</strong> ${r.text}</div>`;
+            actionsHtml += `<div class="pet-action-item"><strong>${r.title}</strong> ${r.text}</div>`;
         });
     }
-    html += `</div>`; 
+    actionsHtml += `</div>`;
 
-    container.innerHTML = html;
+    // Renderiza tudo
+    container.innerHTML = statsHtml + detailsHtml + actionsHtml;
 }
 
 function initializeRuntimeState(d) {

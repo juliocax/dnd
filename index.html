@@ -14,11 +14,6 @@
         <div class="character-identity">
             <h1 id="char-name">--</h1>
             <h2 id="char-title">--</h2>
-            <div class="sub-info">
-                <span>Nível <span id="char-level-display">--</span></span> • 
-                <span id="char-race">--</span> • 
-                <span id="char-class">--</span>
-            </div>
         </div>
         
         <div class="hero-grid">
@@ -27,12 +22,45 @@
             </div>
             
             <div class="bio-stats">
-                <div class="bio-row"><strong>Antecedente:</strong> <span id="bio-background">--</span></div>
-                <div class="bio-row"><strong>Alinhamento:</strong> <span id="bio-align">--</span></div>
-                <div class="bio-row"><strong>Idade:</strong> <span id="bio-age">--</span></div>
-                <div class="bio-row"><strong>Físico:</strong> <span id="bio-physique">--</span></div>
-                <div class="bio-row"><strong>Aparência:</strong> <span id="bio-appearance">--</span></div>
+                <div class="identity-tags">
+                    <div class="tag-box">
+                        <span class="tag-label">Raça</span>
+                        <span class="tag-val" id="char-race">--</span>
+                    </div>
+                    <div class="tag-box">
+                        <span class="tag-label">Classe</span>
+                        <span class="tag-val" id="char-class">--</span>
+                    </div>
                 </div>
+
+                <hr class="bio-separator">
+
+                <div class="bio-details">
+                    <div class="bio-row">
+                        <i class="fas fa-star icon-bio"></i> <strong>Nível:</strong> <span id="char-level-display">--</span>
+                    </div>
+                    <div class="bio-row">
+                        <i class="fas fa-history icon-bio"></i>
+                        <strong>Antecedente:</strong> <span id="bio-background">--</span>
+                    </div>
+                    <div class="bio-row">
+                        <i class="fas fa-balance-scale icon-bio"></i>
+                        <strong>Alinhamento:</strong> <span id="bio-align">--</span>
+                    </div>
+                    <div class="bio-row">
+                        <i class="fas fa-hourglass-half icon-bio"></i>
+                        <strong>Idade:</strong> <span id="bio-age">--</span>
+                    </div>
+                    <div class="bio-row">
+                        <i class="fas fa-walking icon-bio"></i>
+                        <strong>Físico:</strong> <span id="bio-physique">--</span>
+                    </div>
+                    <div class="bio-row">
+                        <i class="fas fa-eye icon-bio"></i>
+                        <strong>Aparência:</strong> <span id="bio-appearance">--</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -78,25 +106,7 @@
         <section class="panel spells-panel">
             <h3 class="section-title"><i class="fas fa-book-sparkles"></i> Grimório</h3>
             
-            <div class="spell-slots-container">
-                <span class="slot-label">Slots Nível 1:</span>
-                <div class="slots-wrapper">
-                    <label class="slot-checkbox"><input type="checkbox"><span class="slot-visual"></span></label>
-                    <label class="slot-checkbox"><input type="checkbox"><span class="slot-visual"></span></label>
-                    <label class="slot-checkbox"><input type="checkbox"><span class="slot-visual"></span></label>
-                </div>
-            </div>
-
-            <div class="spells-category">
-                <h4>Truques</h4>
-                <ul class="spell-list" id="list-cantrips">
-                    </ul>
-            </div>
-            <div class="spells-category">
-                <h4>Magias Nível 1</h4>
-                <ul class="spell-list" id="list-level1">
-                    </ul>
-            </div>
+            <div id="spellbook-container"></div>
         </section>
 
         <section class="panel weapons-panel">
@@ -106,61 +116,59 @@
         </section>
 
         <section class="panel companion-panel steel-defender">
-            <h3 class="section-title"><i class="fas fa-spider"></i> <span id="def-name">Defensor</span></h3>
-            <img src="defensor.png" alt="defensor de aço" class="companion-banner-img">
-            <div class="comp-status-wrapper">
-                <div class="hp-container small">
-                    <div class="hp-label">PV <span id="defender-hp-text">--/--</span></div>
-                    <div class="hp-bar-bg"><div class="hp-bar-fill" id="defender-hp-bar"></div></div>
-                    <div class="hp-controls">
-                        <button class="btn-damage" onclick="modifyHP('defender', -1)">-</button>
-                        <button class="btn-heal" onclick="modifyHP('defender', 1)">+</button>
-                    </div>
+            <div class="pet-header-wrapper">
+                <img src="defensor.png" alt="defensor de aço" class="companion-banner-img">
+                <div class="pet-title-overlay">
+                    <h3><i class="fas fa-spider"></i> <span id="def-name">Defensor</span></h3>
                 </div>
             </div>
-            <div class="stat-block">
-                <div class="stat-content">
-                    <div class="stat-header-line">
-                        <span><strong>CA:</strong> <span id="def-ac">--</span></span>
-                        <span><strong>Stats:</strong> <span id="def-stats-txt">--</span></span>
+
+            <div class="pet-content-body">
+                <div class="pet-hp-wrapper">
+                    <div class="hp-controls">
+                        <button class="btn-damage" onclick="modifyHP('defender', -1)"><i class="fas fa-minus"></i></button>
                     </div>
-                    <div class="stat-actions">
-                        <h5>Ações & Reações</h5>
-                        <div class="action-item">
-                            O Defensor age logo após o seu turno. <br>
-                            <strong>Ataque:</strong> +<span class="dyn-spell-atk"></span> acerto. Dano: 1d8 + <span class="dyn-pb"></span> force.<br>
-                            <strong>Reparar (3/Dia):</strong> Cura 2d8 + <span class="dyn-pb"></span>.
+                    <div class="hp-bar-bg" style="height: 12px;">
+                        <div class="hp-bar-fill" id="defender-hp-bar"></div>
+                    </div>
+                    <div class="hp-controls">
+                        <button class="btn-heal" onclick="modifyHP('defender', 1)"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <span id="defender-hp-text" style="font-size:0.9rem; font-weight:bold; min-width:40px; text-align:right;">--</span>
+                </div>
+
+                <div class="stat-block" style="border:none; background:transparent;">
+                    <div class="stat-content" style="padding:0;">
                         </div>
-                    </div>
                 </div>
             </div>
         </section>
 
         <section class="panel companion-panel homunculus">
-            <h3 class="section-title"><i class="fas fa-crow"></i> <span id="hom-name">Homúnculo</span></h3>
-            <img src="humunculo.png" alt="Corvo Mecânico" class="companion-banner-img">
-            <div class="comp-status-wrapper">
-                <div class="hp-container small">
-                    <div class="hp-label">PV <span id="homunculus-hp-text">--/--</span></div>
-                    <div class="hp-bar-bg"><div class="hp-bar-fill" id="homunculus-hp-bar"></div></div>
-                    <div class="hp-controls">
-                        <button class="btn-damage" onclick="modifyHP('homunculus', -1)">-</button>
-                        <button class="btn-heal" onclick="modifyHP('homunculus', 1)">+</button>
-                    </div>
+            <div class="pet-header-wrapper">
+                <img src="humunculo.png" alt="homunculo" class="companion-banner-img">
+                <div class="pet-title-overlay">
+                    <h3><i class="fas fa-crow"></i> <span id="hom-name">Homúnculo</span></h3>
                 </div>
             </div>
-            <div class="stat-block">
-                <div class="stat-content">
-                    <div class="stat-header-line">
-                        <span><strong>CA:</strong> <span id="hom-ac">--</span></span>
-                        <span><strong>Stats:</strong> <span id="hom-stats-txt">--</span></span>
+
+            <div class="pet-content-body">
+                <div class="pet-hp-wrapper">
+                    <div class="hp-controls">
+                        <button class="btn-damage" onclick="modifyHP('homunculus', -1)"><i class="fas fa-minus"></i></button>
                     </div>
-                    <div class="stat-actions">
-                        <h5>Ações</h5>
-                        <div class="action-item">
-                            <strong>Force Strike:</strong> +<span class="dyn-spell-atk"></span> acerto. Dano: 1d4 + <span class="dyn-pb"></span> force.
+                    <div class="hp-bar-bg" style="height: 12px;">
+                        <div class="hp-bar-fill" id="homunculus-hp-bar"></div>
+                    </div>
+                    <div class="hp-controls">
+                        <button class="btn-heal" onclick="modifyHP('homunculus', 1)"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <span id="homunculus-hp-text" style="font-size:0.9rem; font-weight:bold; min-width:40px; text-align:right;">--</span>
+                </div>
+
+                <div class="stat-block" style="border:none; background:transparent;">
+                    <div class="stat-content" style="padding:0;">
                         </div>
-                    </div>
                 </div>
             </div>
         </section>

@@ -55,17 +55,130 @@ h1, h2, h3, h4 {
     text-align: center;
 }
 
+
+/* --- ATUALIZAÇÃO DO BANNER (HERO SECTION) --- */
+
+/* Ajuste no título para dar mais destaque */
+.character-identity {
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 2;
+}
+
 .character-identity h1 {
-    font-size: 2.5rem;
-    text-shadow: 0 0 10px var(--bronze-dim);
+    font-size: 3.5rem; /* Maior */
+    text-shadow: 0 4px 15px rgba(0,0,0,0.8), 0 0 20px var(--bronze-dim);
+    margin-bottom: 0.2rem;
+    letter-spacing: 2px;
 }
 
 .character-identity h2 {
-    font-size: 1.2rem;
-    color: var(--text-muted);
+    font-size: 1.4rem;
+    color: var(--arcane-blue); /* Mudado para azul arcano para contraste */
+    font-weight: 300;
+    letter-spacing: 4px;
+    opacity: 0.9;
+    text-shadow: 0 2px 4px rgba(0,0,0,1);
+}
+
+/* Novo Estilo para o Bloco de Informações (Bio Stats) */
+.bio-stats {
+    text-align: left;
+    background: rgba(20, 20, 24, 0.85); /* Mais escuro e sólido */
+    backdrop-filter: blur(8px); /* Efeito de vidro fosco */
+    padding: 1.5rem;
+    border-radius: 4px;
+    border: 1px solid #444;
+    border-top: 3px solid var(--bronze); /* Detalhe no topo */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Estilo das novas "Tags" (Nivel, Raça, Classe) */
+.identity-tags {
+    display: flex;
+    gap: 10px;
     margin-bottom: 1rem;
 }
 
+.tag-box {
+    background: linear-gradient(180deg, #2a2a30 0%, #1a1a1e 100%);
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 8px 12px;
+    flex: 1;
+    text-align: center;
+    position: relative;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+.tag-label {
+    display: block;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: var(--bronze);
+    letter-spacing: 1px;
+    margin-bottom: 3px;
+}
+
+.tag-val {
+    display: block;
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: #fff;
+    font-weight: bold;
+    line-height: 1;
+    text-shadow: 0 0 5px var(--arcane-glow);
+}
+
+/* Separador estético */
+.bio-separator {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #555, transparent);
+    margin: 0.5rem 0 1rem 0;
+}
+
+/* Lista de detalhes (Antecedente, Idade, etc) */
+.bio-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.bio-row {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    padding-bottom: 4px;
+    border-bottom: 1px dashed rgba(255,255,255,0.05);
+}
+
+.bio-row strong {
+    color: var(--text-main);
+    margin-right: 5px;
+}
+
+.icon-bio {
+    color: var(--bronze-dim);
+    width: 20px;
+    text-align: center;
+    margin-right: 5px;
+}
+
+/* Ajuste fino na imagem para combinar */
+.char-img {
+    width: 220px;
+    height: 280px; /* Um pouco maior verticalmente */
+    border: 4px solid #1a1a1e;
+    outline: 2px solid var(--bronze);
+    border-radius: 4px; /* Menos arredondado para ficar mais sério */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+}
 .sub-info {
     font-size: 0.9rem;
     color: var(--arcane-blue);
@@ -83,22 +196,6 @@ h1, h2, h3, h4 {
     margin-right: auto;
 }
 
-.char-img {
-    width: 200px;
-    height: 250px;
-    object-fit: cover;
-    border: 2px solid var(--bronze);
-    border-radius: 8px;
-    box-shadow: 0 0 15px var(--arcane-glow);
-}
-
-.bio-stats {
-    text-align: left;
-    background: rgba(0,0,0,0.5);
-    padding: 1rem;
-    border-radius: 8px;
-    border-left: 2px solid var(--arcane-blue);
-}
 
 /* --- ATRIBUTOS (NOVO) --- */
 .attributes-container {
@@ -415,6 +512,289 @@ main {
     gap: 1rem;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
+}
+
+/* --- ESTILO AVANÇADO DOS PETS (style.css) --- */
+
+/* Ajuste no Painel Geral do Pet para ser a "Moldura" */
+.companion-panel {
+    padding: 0; /* Remove padding padrão para imagem sangrar */
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: rgba(30, 30, 36, 0.95);
+}
+
+.companion-panel:hover {
+    transform: translateY(-2px);
+}
+
+/* Cores Temáticas Específicas */
+.companion-panel.steel-defender {
+    border: 1px solid #8c5a2b; /* Bronze Escuro */
+    box-shadow: 0 0 10px rgba(205, 127, 50, 0.1);
+}
+.companion-panel.homunculus {
+    border: 1px solid #008b8b; /* Ciano Escuro */
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+}
+
+/* Cabeçalho com Imagem e Nome */
+.pet-header-wrapper {
+    position: relative;
+    height: 200px;
+    width: 100%;
+}
+
+.companion-banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    border: none;
+    border-radius: 0;
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    margin: 0;
+}
+
+.pet-title-overlay {
+    position: absolute;
+    bottom: 10px;
+    left: 15px;
+    right: 15px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.pet-title-overlay h3 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: #fff;
+    border: none; /* Remove borda padrão do h3 */
+}
+
+/* Área de Conteúdo (Stat Block) */
+.pet-content-body {
+    padding: 15px 20px 20px 20px;
+}
+
+/* Barra de Vida Estilizada */
+.pet-hp-wrapper {
+    background: rgba(0,0,0,0.3);
+    padding: 8px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pet-hp-wrapper .hp-bar-bg {
+    margin-bottom: 0; /* Reset */
+    flex-grow: 1;
+    background: #111;
+    border: 1px solid #333;
+}
+
+/* Grid de Status (CA, Desl, Atributos) */
+.pet-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 15px;
+    background: rgba(0,0,0,0.2);
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.pet-stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.pet-stat-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+}
+
+.pet-stat-val {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.steel-defender .pet-stat-val { color: var(--bronze); }
+.homunculus .pet-stat-val { color: var(--arcane-blue); }
+
+/* Detalhes (Perícias, Imunidades) */
+.pet-details-small {
+    font-size: 0.8rem;
+    color: #ccc;
+    margin-bottom: 15px;
+    line-height: 1.4;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed rgba(255,255,255,0.1);
+}
+.pet-details-small strong { color: var(--text-main); }
+
+/* Seções de Ação */
+.pet-actions-section h5 {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    margin: 15px 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pet-actions-section h5::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, #444, transparent);
+}
+
+.steel-defender h5 { color: var(--bronze); }
+.homunculus h5 { color: var(--arcane-blue); }
+
+.pet-action-item {
+    background: rgba(255,255,255,0.03);
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    border-radius: 4px;
+    border-left: 3px solid #444;
+    font-size: 0.85rem;
+}
+
+.steel-defender .pet-action-item { border-left-color: var(--bronze-dim); }
+.homunculus .pet-action-item { border-left-color: var(--arcane-blue); }
+
+.pet-action-item strong {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+    color: #fff;
+}
+
+
+/* --- ESTILO DAS ABAS DE MAGIA --- */
+
+/* O container onde as magias serão geradas */
+#spellbook-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* O botão do Nível (Cabeçalho) */
+.spell-level-header {
+    background: linear-gradient(90deg, #2a2a30, #1e1e24);
+    border: 1px solid #444;
+    border-left: 4px solid var(--bronze);
+    padding: 12px 15px;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    color: var(--text-main);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+
+.spell-level-header:hover {
+    background: #333;
+    border-color: var(--arcane-blue);
+}
+
+.spell-level-header i.fa-chevron-down {
+    transition: transform 0.3s;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Estado Ativo (Quando a aba está aberta) */
+.spell-level-header.active {
+    background: #1a1a1e;
+    border-left-color: var(--arcane-blue);
+    color: var(--arcane-blue);
+}
+
+.spell-level-header.active i.fa-chevron-down {
+    transform: rotate(180deg);
+    color: var(--arcane-blue);
+}
+
+/* O conteúdo (A lista de magias) */
+.spell-level-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+    background: rgba(0,0,0,0.2);
+    border-radius: 0 0 4px 4px;
+    margin-top: -5px; /* Cola no header */
+    margin-bottom: 5px;
+}
+
+.spell-level-content .spell-list {
+    max-height: 300px; /* Altura máxima antes de rolar */
+    overflow-y: auto;  /* Habilita rolagem vertical */
+    padding-right: 5px; /* Espaço para não colar no scroll */
+}
+
+/* Estilização da Barra de Rolagem (Webkit - Chrome/Edge/Safari) */
+.spell-level-content .spell-list::-webkit-scrollbar {
+    width: 6px;
+}
+.spell-level-content .spell-list::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1); 
+}
+.spell-level-content .spell-list::-webkit-scrollbar-thumb {
+    background: var(--bronze-dim); 
+    border-radius: 3px;
+}
+.spell-level-content .spell-list::-webkit-scrollbar-thumb:hover {
+    background: var(--bronze); 
+}
+
+/* Container de Slots (dentro da aba) */
+.level-slots-header {
+    background: rgba(0,0,0,0.3);
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.level-slots-header span {
+    color: var(--text-muted);
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+}
+
+/* Reutiliza o estilo dos checkboxes, mas ajusta o tamanho se necessário */
+.level-slots-header .slots-wrapper {
+    display: flex;
+    gap: 8px;
+}
+
+.level-slots-header .slot-visual {
+    width: 16px; 
+    height: 16px;
+    border-width: 1px;
 }
 
 /* --- FOOTER --- */
