@@ -206,7 +206,12 @@ function parseCSV(csvText) {
             const levelStr = type.replace('spell', '');
             const level = parseInt(levelStr);
             if(!isNaN(level) && level >= 0 && level <= 9 && keyRaw) {
-                db.spells[level].push({ name: keyRaw, desc: name });
+                let fullDescription = cols.slice(2).join(',').trim();
+                if (fullDescription.startsWith('"') && fullDescription.endsWith('"')) {
+                    fullDescription = fullDescription.substring(1, fullDescription.length - 1);
+                }
+                fullDescription = fullDescription.replace(/""/g, '"');
+                db.spells[level].push({ name: keyRaw, desc: fullDescription });
             }
         }
 
