@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ficha de Artífice</title>
+    <title>Ficha de Júlio</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Roboto+Slab:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -17,9 +17,19 @@
         </div>
         
         <div class="hero-grid">
+
             <div class="portrait-container">
                 <img src="perfil.png" alt="Retrato" class="char-img">
+                
+                <button class="btn-journal-mini" onclick="toggleJournal(true)">
+                    <i class="fas fa-book-open"></i> Diário
+                </button>
+
+                <button class="btn-journal-mini" onclick="toggleConfig(true)">
+                    <i class="fas fa-cog"></i> Configuração
+                </button>
             </div>
+
             
             <div class="bio-stats">
                 <div class="identity-tags">
@@ -38,6 +48,10 @@
                 <div class="bio-details">
                     <div class="bio-row">
                         <i class="fas fa-star icon-bio"></i> <strong>Nível:</strong> <span id="char-level-display">--</span>
+                    </div>
+                    <div class="bio-row">
+                        <i class="fas fa-language icon-bio"></i>
+                        <strong>Idiomas:</strong> <span id="bio-char-languages">--</span>
                     </div>
                     <div class="bio-row">
                         <i class="fas fa-history icon-bio"></i>
@@ -101,10 +115,16 @@
                 <div class="stat-box highlight"><span class="stat-label">Atk Mágico</span><span class="stat-value" id="spell-atk">--</span></div>
                 <div class="stat-box"><span class="stat-label">Prof.</span><span class="stat-value" id="prof-bonus">--</span></div>
             </div>
+
+            <div id="traits-injection-area" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 10px;"></div>
+
+            <hr class="separator">
+
+            
         </section>
 
         <section class="panel spells-panel">
-            <h3 class="section-title"><i class="fas fa-book-sparkles"></i> Grimório</h3>
+            <h3 class="section-title"><i class="fas fa-book-sparkles"></i> Lista de Magias</h3>
             
             <div id="spellbook-container"></div>
         </section>
@@ -181,11 +201,6 @@
         </section>
     </main>
 
-    <div class="journal-trigger-container">
-    <button class="btn-journal-open" onclick="toggleJournal(true)">
-        <i class="fas fa-book-open"></i> Abrir Diário
-    </button>
-</div>
 
     <section id="journal-view" class="journal-overlay">
         <div class="journal-container">
@@ -199,7 +214,7 @@
                     <button onclick="addJournalEntry('mission')"><i class="fas fa-scroll"></i> Missão</button>
                     <button onclick="addJournalEntry('npc')"><i class="fas fa-user-friends"></i> NPC</button>
                     <button onclick="addJournalEntry('note')"><i class="fas fa-sticky-note"></i> Nota</button>
-                    <button onclick="addJournalEntry('loot')"><i class="fas fa-gem"></i> Loot</button>
+                    <button onclick="addJournalEntry('loot')"><i class="fas fa-gem"></i> Item</button>
                 </div>
                 <div class="journal-io">
                     <button onclick="downloadJournal()" class="btn-save-json"><i class="fas fa-download"></i> Salvar JSON</button>
@@ -214,11 +229,39 @@
         </div>
     </section>
 
+    <div id="config-modal" class="config-overlay" style="display: none;">
+        <div class="config-box">
+            <header>
+                <h3><i class="fas fa-cog"></i> Fonte de Dados</h3>
+                <button onclick="toggleConfig(false)" class="btn-close-config"><i class="fas fa-times"></i></button>
+            </header>
+            
+            <div class="config-options">
+                <div class="config-group">
+                    <label>Opção A: Link (Google Sheets CSV)</label>
+                    <input type="text" id="cfg-url-input" placeholder="Cole o link 'Publicado na Web' aqui...">
+                    <button onclick="saveUrlConfig()" class="btn-action">Usar Link</button>
+                </div>
+
+                <div class="divider"><span>OU</span></div>
+
+                <div class="config-group">
+                    <label>Opção B: Arquivo Local (.csv)</label>
+                    <input type="file" id="cfg-file-input" accept=".csv">
+                    <button onclick="processFileConfig()" class="btn-action">Carregar Arquivo</button>
+                </div>
+            </div>
+
+            <div class="config-footer">
+                <button onclick="resetConfig()" class="btn-reset">Restaurar Original</button>
+            </div>
+        </div>
+    </div>
+
     <footer>
-        <p>Ficha de <span id="footer-name">--</span> • Nvl <span id="footer-lvl">--</span></p>
+        <p>Criado por Júlio</p>
     </footer>
 
-    <script src="database.js"></script>
-    <script src="script.js"></script>
+    <script src="database.js"></script> <script src="script.js"></script>
 </body>
 </html>

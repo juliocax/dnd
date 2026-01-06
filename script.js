@@ -1,20 +1,122 @@
 
-const SHEET_ID = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSdOjZm_tWpnBs6MYtrym6nzYy-C03eLLmgppOp_thgcjVoV9583zSm-si_acht5TDwwmZ9D4gFx1GN/pub?output=csv'; 
-
-const SHEET_URL = `https://api.allorigins.win/raw?url=${encodeURIComponent(SHEET_ID)}`;
+const DEFAULT_SHEET = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSdOjZm_tWpnBs6MYtrym6nzYy-C03eLLmgppOp_thgcjVoV9583zSm-si_acht5TDwwmZ9D4gFx1GN/pub?output=csv'; 
 
 const appState = {
     player: { current: 0, max: 0 },
     defender: { current: 0, max: 0 },
     homunculus: { current: 0, max: 0 }
 };
-
 let journalData = [];
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetchData();
+    decideSourceAndLoad(); 
     loadJournalFromLocal();
 });
+
+async function decideSourceAndLoad() {
+    const localCSV = localStorage.getItem('rpg_static_csv');
+    if (localCSV) {
+        console.log("Carregando de arquivo local salvo...");
+        processCSVData(localCSV);
+        return;
+    }
+
+    const customLink = localStorage.getItem('rpg_custom_link');
+    const targetLink = customLink ? customLink : DEFAULT_SHEET;
+    
+    await fetchDataFromWeb(targetLink);
+}
+
+async function fetchDataFromWeb(url) {
+    try {
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+        const response = await fetch(proxyUrl);
+        if (!response.ok) throw new Error("Erro de conexão");
+        
+        const dataText = await response.text();
+        
+        if (dataText.includes("<!DOCTYPE") || dataText.includes("<html")) {
+            alert("ERRO: O link não é um CSV válido.");
+            return;
+        }
+
+        processCSVData(dataText);
+
+    } catch (error) {
+        console.error(error);
+        alert("Erro ao carregar link: " + error.message);
+    }
+}
+
+function processCSVData(csvText) {
+    const db = parseCSV(csvText);
+    
+    if (!db.info.name && db.arsenal.length === 0) {
+        alert("Dados ilegíveis. Verifique a formatação do CSV.");
+    }
+
+    loadDataToUI(db);
+    initializeRuntimeState(db);
+    updateDisplays();
+}
+
+function toggleConfig(show) {
+    const modal = document.getElementById('config-modal');
+    modal.style.display = show ? 'flex' : 'none';
+    
+    if(show) {
+        const currentLink = localStorage.getItem('rpg_custom_link');
+        if(currentLink) document.getElementById('cfg-url-input').value = currentLink;
+    }
+}
+
+function saveUrlConfig() {
+    const url = document.getElementById('cfg-url-input').value.trim();
+    if (!url) {
+        alert("Por favor, insira um link.");
+        return;
+    }
+    
+    localStorage.removeItem('rpg_static_csv');
+    localStorage.setItem('rpg_custom_link', url);
+    
+    alert("Link salvo! Recarregando...");
+    location.reload();
+}
+
+function processFileConfig() {
+    const input = document.getElementById('cfg-file-input');
+    const file = input.files[0];
+    
+    if (!file) {
+        alert("Selecione um arquivo .csv primeiro.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        
+        try {
+            localStorage.setItem('rpg_static_csv', content);
+            localStorage.removeItem('rpg_custom_link');
+            
+            alert("Arquivo carregado e salvo na memória! Recarregando...");
+            location.reload();
+        } catch (err) {
+            alert("Arquivo muito grande para salvar no navegador. Tente um arquivo menor.");
+        }
+    };
+    reader.readAsText(file);
+}
+
+function resetConfig() {
+    if(confirm("Voltar para a planilha original")) {
+        localStorage.removeItem('rpg_static_csv');
+        localStorage.removeItem('rpg_custom_link');
+        location.reload();
+    }
+}
 
 async function fetchData() {
     try {
@@ -45,6 +147,7 @@ async function fetchData() {
     }
 }
 
+
 function parseCSV(csvText) {
     const lines = csvText.split(/\r?\n/);
     let separator = ',';
@@ -58,6 +161,8 @@ function parseCSV(csvText) {
         spells: Array.from({ length: 10 }, () => []),
         spellSlots: Array(10).fill(0), 
         arsenal: [],
+        // NOVO: Adicionamos arrays para traços
+        traits: { race: [], class: [] },
         companions: { 
             defender: { name: "Defensor", maxHp: 0, texts: {}, traits: [], actions: [], reactions: [] }, 
             homunculus: { name: "Homúnculo", maxHp: 0, texts: {}, traits: [], actions: [], reactions: [] } 
@@ -85,11 +190,8 @@ function parseCSV(csvText) {
         
         if(type === 'info') { 
             let fullText = desc ? (name + ',' + desc) : name;
-
             fullText = fullText.replace(/^"|"$/g, '').replace(/""/g, '"');
-
             db.info[keyRaw] = fullText; 
-            
             if(key === 'name' && fullText === "") db.info.name = desc;
         }
 
@@ -111,16 +213,42 @@ function parseCSV(csvText) {
         if (type === 'slots') {
             const lvl = parseInt(keyRaw); 
             const count = parseInt(name); 
-            
             if (!isNaN(lvl) && !isNaN(count) && lvl >= 0 && lvl <= 9) {
                 db.spellSlots[lvl] = count;
             }
         }
 
-        if(type === 'weapon') {
-            const isWpn = desc.toLowerCase().includes('d');
-            db.arsenal.push({ name: keyRaw, type: name, isWeapon: isWpn, damageDie: desc, bonusAtk: 1 });
+        if (type === 'weapon') {
+            db.arsenal.push({ 
+                name: keyRaw, 
+                type: name, 
+                isWeapon: true,
+                damageDie: desc, 
+                bonusAtk: 1 
+            });
         }
+
+        if (type === 'tool') {
+            db.arsenal.push({ 
+                name: keyRaw, 
+                desc: name,  
+                
+                type: "Ferramenta",
+                isWeapon: false,
+                damageDie: "", 
+                bonusAtk: 0 
+            });
+        }
+
+        if(type === 'trait_race') {
+            const txt = cols.slice(2).join(',').trim();
+            db.traits.race.push({ title: keyRaw, text: txt });
+        }
+        if(type === 'trait_class') {
+            const txt = cols.slice(2).join(',').trim();
+            db.traits.class.push({ title: keyRaw, text: txt });
+        }
+
         if(type.startsWith('pet')) {
             let pet = db.companions[key];
             if(pet) {
@@ -145,6 +273,7 @@ function loadDataToUI(d) {
     setText('char-level-display', d.info.level);
     setText('char-race', d.info.race);
     setText('char-class', d.info.classInfo);
+    setText('bio-char-languages', d.info.languages);
     setText('bio-background', d.info.background);
     setText('bio-align', d.info.alignment);
     setText('bio-age', d.info.age);
@@ -173,9 +302,14 @@ function loadDataToUI(d) {
     setText('stat-ac', d.stats.ac);
     setText('stat-init', d.stats.initiative >= 0 ? `+${d.stats.initiative}` : d.stats.initiative);
     setText('stat-speed', d.stats.speed);
+    const traitsArea = document.getElementById('traits-injection-area');
+    if(traitsArea) traitsArea.innerHTML = ''; 
+
+    renderTraitDrawer('traits-injection-area', d.traits.race, 'Atributos da Raça', 'fa-dna');
+    
+    renderTraitDrawer('traits-injection-area', d.traits.class, 'Atributos de Classe', 'fa-cogs');
 
     renderSpellbook(d.spells, d.spellSlots);
-    
     renderArsenal('weapons-container', d.arsenal, spellAtk, intMod);
     renderPetCard('defender', d.companions.defender);
     renderPetCard('homunculus', d.companions.homunculus);
@@ -259,7 +393,7 @@ function renderSpellbook(allSpells, slotCounts) {
                 if (content.style.maxHeight) {
                     content.style.maxHeight = null;
                 } else {
-                    content.style.maxHeight = (content.scrollHeight + 50) + "px"; 
+                    content.style.maxHeight = (content.scrollHeight + 100) + "px"; 
                 }
             });
         }
@@ -540,10 +674,10 @@ function addJournalEntry(type) {
 
 function getDefaultTitle(type) {
     switch(type) {
-        case 'mission': return 'Nova Missão';
-        case 'npc': return 'Novo NPC';
-        case 'loot': return 'Item / Tesouro';
-        default: return 'Nota Mental';
+        case 'mission': return 'Missão';
+        case 'npc': return 'NPC';
+        case 'loot': return 'Item';
+        default: return 'Nota';
     }
 }
 
@@ -647,4 +781,56 @@ function loadJournal(input) {
     };
     reader.readAsText(file);
     input.value = ''; 
+}
+
+function toggleDrawer(header) {
+    header.classList.toggle('active');
+    const content = header.nextElementSibling;
+    
+    if (header.classList.contains('active')) {
+        content.style.maxHeight = content.scrollHeight + "px";
+    } else {
+        content.style.maxHeight = null;
+    }
+}
+
+
+function renderTraitDrawer(containerId, list, title, iconClass) {
+    if (!list || list.length === 0) return;
+
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'drawer-wrapper'; 
+
+    const header = document.createElement('div');
+    header.className = 'drawer-header';
+    header.innerHTML = `<span><i class="fas ${iconClass}"></i> ${title}</span> <i class="fas fa-chevron-down"></i>`;
+    
+    const content = document.createElement('div');
+    content.className = 'drawer-content';
+
+    const ul = document.createElement('ul');
+    ul.className = 'drawer-list';
+
+    list.forEach(item => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${item.title}</strong> ${item.text}`;
+        ul.appendChild(li);
+    });
+
+    content.appendChild(ul);
+    wrapper.appendChild(header);
+    wrapper.appendChild(content);
+    container.appendChild(wrapper);
+
+    header.addEventListener('click', () => {
+        header.classList.toggle('active');
+        if (content.style.maxHeight) {
+            content.style.maxHeight = null;
+        } else {
+            content.style.maxHeight = (content.scrollHeight + 50) + "px"; 
+        }
+    });
 }
