@@ -82,11 +82,17 @@ function parseCSV(csvText) {
             desc = cols.slice(3).join(',').trim();
         }
         
-        if(type === 'info') { db.info[keyRaw] = name; if(key === 'name' && name === "") db.info.name = desc; }
-        
-        // --- CORREÇÃO AQUI (Lê atributo da col C ou D) ---
+        if(type === 'info') { 
+            let fullText = desc ? (name + ',' + desc) : name;
+
+            fullText = fullText.replace(/^"|"$/g, '').replace(/""/g, '"');
+
+            db.info[keyRaw] = fullText; 
+            
+            if(key === 'name' && fullText === "") db.info.name = desc;
+        }
+
         if(type === 'attr') {
-            // Tenta ler o número da coluna C (name), se falhar, tenta da D (desc)
             const val = parseInt(name) || parseInt(desc) || 10;
             db.attributes[key] = val;
         }
@@ -103,14 +109,13 @@ function parseCSV(csvText) {
 
         if (type === 'slots') {
             const lvl = parseInt(keyRaw); 
-            const count = parseInt(name); // Slots precisam estar na Coluna C (Name)
+            const count = parseInt(name); 
             
             if (!isNaN(lvl) && !isNaN(count) && lvl >= 0 && lvl <= 9) {
                 db.spellSlots[lvl] = count;
             }
         }
 
-        // ... resto do código (weapon, pet) continua igual ...
         if(type === 'weapon') {
             const isWpn = desc.toLowerCase().includes('d');
             db.arsenal.push({ name: keyRaw, type: name, isWeapon: isWpn, damageDie: desc, bonusAtk: 1 });
@@ -161,7 +166,6 @@ function loadDataToUI(d) {
     const spellAtk = intMod + pb;
     const spellDc = 8 + intMod + pb;
     
-    // Atualiza Displays de Magia
     setText('spell-dc', spellDc);
     setText('spell-atk', spellAtk >= 0 ? `+${spellAtk}` : spellAtk);
     setText('prof-bonus', `+${pb}`);
@@ -169,7 +173,6 @@ function loadDataToUI(d) {
     setText('stat-init', d.stats.initiative >= 0 ? `+${d.stats.initiative}` : d.stats.initiative);
     setText('stat-speed', d.stats.speed);
 
-    // --- CORREÇÃO AQUI (Passando d.spellSlots) ---
     renderSpellbook(d.spells, d.spellSlots);
     
     renderArsenal('weapons-container', d.arsenal, spellAtk, intMod);
@@ -182,13 +185,10 @@ function renderSpellbook(allSpells, slotCounts) {
     if (!container) return;
     container.innerHTML = '';
     
-    // REMOVIDO: const SLOTS_CONFIG = [...]  <- Isso estava forçando os valores errados
 
     allSpells.forEach((spells, level) => {
-        // Pega a quantidade vinda da planilha. Se não tiver nada, é 0.
         const slotsNesseNivel = slotCounts[level] || 0;
 
-        // Renderiza se tiver magia OU se tiver slots definidos
         if (spells.length > 0 || slotsNesseNivel > 0) {
             
             const isCantrip = level === 0;
@@ -203,16 +203,20 @@ function renderSpellbook(allSpells, slotCounts) {
             const content = document.createElement('div');
             content.className = 'spell-level-content';
             
-            // Gera os slots baseados no número da planilha
             if (!isCantrip && slotsNesseNivel > 0) {
                 const slotsDiv = document.createElement('div');
                 slotsDiv.className = 'level-slots-header';
                 
                 let checkboxesHtml = '';
-                for(let i=0; i < slotsNesseNivel; i++) {
+                for(let i = 0; i < slotsNesseNivel; i++) {
+                    const storageKey = `slot_lvl${level}_${i}`;
+                    
+                    const isUsed = localStorage.getItem(storageKey) === 'true';
+                    const checkedAttr = isUsed ? 'checked' : '';
+
                     checkboxesHtml += `
                         <label class="slot-checkbox">
-                            <input type="checkbox">
+                            <input type="checkbox" ${checkedAttr} onchange="toggleSlot('${storageKey}', this)">
                             <span class="slot-visual"></span>
                         </label>
                     `;
@@ -262,8 +266,6 @@ function renderSpellbook(allSpells, slotCounts) {
 }
 
 function renderPetCard(petId, petData) {
-    // Atualiza nome no título (se houver elemento externo)
-    // Nota: O novo layout renderiza o nome DENTRO do card, mas mantemos o update externo por segurança
     const extTitle = document.getElementById(petId === 'defender' ? 'def-name' : 'hom-name');
     if(extTitle) extTitle.innerText = petData.name;
 
@@ -274,44 +276,24 @@ function renderPetCard(petId, petData) {
     
     if(!panel) return;
 
-    // Dados de texto
     const txt = petData.texts;
     const ac = txt['ca'] || txt['ac'] || txt['armor class'] || '--';
     const speed = txt['desl'] || txt['desl.'] || txt['speed'] || '--';
-    const stats = txt['stats'] || txt['atributos'] || '--'; // ex: "FOR 14 (+2) ..."
+    const stats = txt['stats'] || txt['atributos'] || '--'; 
     const skills = txt['pericias'] || txt['skills'] || '';
     const immun = txt['imunes'] || txt['immunities'] || '';
     const senses = txt['sentidos'] || txt['senses'] || '';
 
-    // Ícone baseado no tipo para dar um charme
     const iconClass = petId === 'defender' ? 'fa-shield-alt' : 'fa-eye';
 
-    // Montagem do HTML Novo
     let html = ``;
-
-    // 1. HEADER (Imagem + Título) - A imagem deve estar no HTML, mas vamos reorganizar ou assumir que ela existe.
-    // Para simplificar e garantir que fique bonito, vamos injetar a estrutura completa dentro do Painel,
-    // exceto o título H3 original que a gente esconde via CSS ou substitui.
-    
-    // Vamos reconstruir o conteúdo interno do painel preservando a imagem original se possível, 
-    // ou apenas injetando o HTML do corpo.
-    // Estratégia: Vamos substituir o innerHTML de um container específico ou criar um novo.
-    
-    // Como o seu HTML tem uma estrutura fixa, vamos focar em preencher o .stat-content 
-    // E mover a imagem/barra de vida para o lugar certo visualmente.
-    
-    // Para ficar MUITO bonito, vou sugerir que você altere o HTML do container stats,
-    // mas aqui via JS vou gerar o bloco de "Dados do Monstro".
     
     const container = panel.querySelector('.stat-block .stat-content');
     
-    // Se não achar o container padrão, aborta
     if(!container) return;
 
-    // Limpa container antigo
     container.innerHTML = '';
 
-    // --- BLOCO DE STATUS (GRID) ---
     let statsHtml = `
         <div class="pet-stats-grid">
             <div class="pet-stat-box">
@@ -334,32 +316,24 @@ function renderPetCard(petId, petData) {
         </div>
     `;
 
-    // --- DETALHES MENORES ---
     let detailsHtml = `<div class="pet-details-small">`;
     if(skills) detailsHtml += `<div><strong>Perícias:</strong> ${skills}</div>`;
     if(immun)  detailsHtml += `<div><strong>Imunidades:</strong> ${immun}</div>`;
     if(senses) detailsHtml += `<div><strong>Sentidos:</strong> ${senses}</div>`;
     detailsHtml += `</div>`;
 
-    // --- AÇÕES & TRAÇOS ---
     let actionsHtml = `<div class="pet-actions-section">`;
-
-    // Traços
     if(petData.traits.length > 0) {
         petData.traits.forEach(t => {
             actionsHtml += `<div class="pet-action-item"><strong>${t.title}</strong> ${t.text}</div>`;
         });
     }
-
-    // Ações
     if(petData.actions.length > 0) {
         actionsHtml += `<h5>Ações</h5>`;
         petData.actions.forEach(a => {
             actionsHtml += `<div class="pet-action-item"><strong>${a.title}</strong> ${a.text}</div>`;
         });
     }
-
-    // Reações
     if(petData.reactions.length > 0) {
         actionsHtml += `<h5>Reações</h5>`;
         petData.reactions.forEach(r => {
@@ -367,15 +341,36 @@ function renderPetCard(petId, petData) {
         });
     }
     actionsHtml += `</div>`;
-
-    // Renderiza tudo
     container.innerHTML = statsHtml + detailsHtml + actionsHtml;
 }
 
 function initializeRuntimeState(d) {
     appState.player.max = d.stats.maxHp || 10;
-    appState.player.current = d.stats.maxHp || 10;
+    appState.defender.max = d.companions.defender.maxHp || 0;
+    appState.homunculus.max = d.companions.homunculus.maxHp || 0;
+
+    const savedPlayerHP = localStorage.getItem('hp_player_current');
+    if (savedPlayerHP !== null) {
+        appState.player.current = parseInt(savedPlayerHP);
+    } else {
+        appState.player.current = appState.player.max;
+    }
+
+    const savedDefenderHP = localStorage.getItem('hp_defender_current');
+    if (savedDefenderHP !== null) {
+        appState.defender.current = parseInt(savedDefenderHP);
+    } else {
+        appState.defender.current = appState.defender.max;
+    }
+
+    const savedHomunculusHP = localStorage.getItem('hp_homunculus_current');
+    if (savedHomunculusHP !== null) {
+        appState.homunculus.current = parseInt(savedHomunculusHP);
+    } else {
+        appState.homunculus.current = appState.homunculus.max;
+    }
 }
+
 function renderList(containerId, list) {
     const container = document.getElementById(containerId);
     if (!container) return; container.innerHTML = ''; 
@@ -388,18 +383,97 @@ function renderList(containerId, list) {
 }
 function renderArsenal(containerId, list, spellAtk, intMod) {
     const container = document.getElementById(containerId);
-    if (!container) return; container.innerHTML = '';
-    list.forEach(item => {
-        if (item.isWeapon) {
-            const hit = spellAtk + (item.bonusAtk || 0);
-            const dmgBonus = intMod + (item.bonusAtk || 0);
-            const html = `<div class="weapon-card main-weapon"><div class="weapon-icon"><i class="fas fa-gavel"></i></div><div class="weapon-info"><h4>${item.name}</h4><span class="weapon-type">${item.type}</span></div><div class="weapon-stats"><div class="w-hit"><span class="label">Acerto</span><span class="val">+${hit}</span></div><div class="w-dmg"><span class="label">Dano</span><span class="val">${item.damageDie} + ${dmgBonus}</span></div></div></div>`;
-            container.innerHTML += html;
-        } else {
-            const html = `<div class="spells-category" style="margin-bottom:10px;"><ul class="spell-list"><li onclick="this.classList.toggle('active')"><strong>${item.name}</strong><p class="desc">${item.desc}</p></li></ul></div>`;
-            container.innerHTML += html;
-        }
-    });
+    if (!container) return;
+    
+    container.innerHTML = '';
+
+    // Separa itens em dois grupos
+    const weapons = list.filter(item => item.isWeapon);
+    const tools = list.filter(item => !item.isWeapon);
+
+    let htmlContent = '';
+
+    // --- RENDERIZA ARMAS ---
+    if (weapons.length > 0) {
+        htmlContent += `<h4 class="arsenal-subtitle"><i class="fas fa-swords"></i> Armas</h4>`;
+        htmlContent += `<div class="weapons-grid-area">`;
+
+        weapons.forEach(item => {
+            // Cálculos
+            const bonus = parseInt(item.bonusAtk) || 0; // Garante número
+            const hitTotal = spellAtk + bonus;
+            const hitDisplay = hitTotal >= 0 ? `+${hitTotal}` : hitTotal;
+            
+            const dmgBonusTotal = intMod + bonus;
+            const dmgDisplay = dmgBonusTotal >= 0 ? `+${dmgBonusTotal}` : dmgBonusTotal;
+
+            // Define ícone baseado no nome ou tipo (opcional, simples)
+            let icon = 'fa-gavel'; // Ícone padrão (martelo/bater)
+            const lowerName = item.name.toLowerCase();
+            if(lowerName.includes('espada') || lowerName.includes('lâmina')) icon = 'fa-khanda';
+            if(lowerName.includes('adaga')) icon = 'fa-dagger';
+            if(lowerName.includes('arco') || lowerName.includes('besta')) icon = 'fa-bullseye';
+            if(lowerName.includes('lança')) icon = 'fa-pen-nib'; // Improviso visual ou fa-arrow-up
+            if(lowerName.includes('machado')) icon = 'fa-axe-battle'; 
+
+            htmlContent += `
+                <div class="weapon-card">
+                    <div class="left-section" style="display:flex; align-items:center;">
+                        <div class="weapon-icon-box">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <div class="weapon-info">
+                            <span class="weapon-name">${item.name}</span>
+                            <span class="weapon-type">${item.type}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="weapon-stats-block">
+                        <div class="w-stat hit" title="Bônus de Ataque">
+                            <span class="w-label">Acerto</span>
+                            <span class="w-val">${hitDisplay}</span>
+                        </div>
+                        <div class="w-stat dmg" title="Dano + Modificador">
+                            <span class="w-label">Dano</span>
+                            <span class="w-val">${item.damageDie} <span style="font-size:0.7em">${dmgDisplay}</span></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        htmlContent += `</div>`; // Fecha grid
+    }
+
+    // --- RENDERIZA FERRAMENTAS/ITENS ---
+    if (tools.length > 0) {
+        // Adiciona um espaçamento se já houver armas
+        if (weapons.length > 0) htmlContent += `<div style="height: 20px;"></div>`;
+        
+        htmlContent += `<h4 class="arsenal-subtitle"><i class="fas fa-toolbox"></i> Equipamentos & Ferramentas</h4>`;
+        htmlContent += `<div class="tools-list-area">`;
+        
+        tools.forEach(item => {
+            htmlContent += `
+                <div class="tool-item">
+                    <i class="fas fa-cogs"></i>
+                    <div>
+                        <strong>${item.name}</strong> 
+                        <span style="color:#777; margin-left:5px;"> — ${item.desc}</span>
+                    </div>
+                </div>
+            `;
+        });
+
+        htmlContent += `</div>`;
+    }
+
+    // Se não tiver nada
+    if (weapons.length === 0 && tools.length === 0) {
+        htmlContent = `<p style="color:#666; font-style:italic; text-align:center;">Nenhum equipamento registrado.</p>`;
+    }
+
+    container.innerHTML = htmlContent;
 }
 function updateAttributeDisplay(attr, score) {
     const mod = Math.floor((score - 10) / 2);
@@ -407,11 +481,18 @@ function updateAttributeDisplay(attr, score) {
     setText(`mod-${attr}`, mod >= 0 ? `+${mod}` : mod);
 }
 function setText(id, text) { const el = document.getElementById(id); if (el) el.innerText = text; }
+
 function modifyHP(target, amount) {
-    const entity = appState[target]; if (!entity) return;
+    const entity = appState[target]; 
+    if (!entity) return;
+
     entity.current += amount;
+
     if (entity.current > entity.max) entity.current = entity.max;
     if (entity.current < 0) entity.current = 0;
+
+    localStorage.setItem(`hp_${target}_current`, entity.current);
+
     updateDisplays();
 }
 function updateDisplays() {
@@ -430,5 +511,13 @@ function updateBar(barId, textId, maxId, entity, isCompact = false) {
         bar.style.width = `${percent}%`;
         const hue = Math.floor(percent * 1.2); 
         bar.style.backgroundColor = `hsl(${hue}, 100%, 40%)`;
+    }
+}
+
+function toggleSlot(key, checkbox) {
+    if (checkbox.checked) {
+        localStorage.setItem(key, 'true');
+    } else {
+        localStorage.removeItem(key);
     }
 }

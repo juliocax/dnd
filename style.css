@@ -767,6 +767,156 @@ main {
     background: var(--bronze); 
 }
 
+
+#weapons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Títulos das subseções (Armas vs Itens) gerados pelo JS */
+.arsenal-subtitle {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* --- GRID DE ARMAS --- */
+.weapons-grid-area {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsivo: cria colunas conforme cabe */
+    gap: 15px;
+}
+
+/* O Cartão da Arma */
+.weapon-card {
+    background: linear-gradient(145deg, #25252b 0%, #1c1c21 100%);
+    border: 1px solid #444;
+    border-left: 4px solid var(--bronze); /* Identidade visual Bronze */
+    border-radius: 6px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Efeito Hover */
+.weapon-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.4);
+    border-color: var(--bronze-dim);
+    background: linear-gradient(145deg, #2a2a30 0%, #202026 100%);
+}
+
+/* Brilho sutil no fundo */
+.weapon-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 60px; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02));
+    pointer-events: none;
+}
+
+/* Ícone da Arma */
+.weapon-icon-box {
+    width: 45px;
+    height: 45px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #333;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--bronze);
+    margin-right: 12px;
+}
+
+/* Informações (Nome e Tipo) */
+.weapon-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.weapon-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-main);
+    line-height: 1.2;
+}
+
+.weapon-type {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+/* Estatísticas (Acerto e Dano) */
+.weapon-stats-block {
+    display: flex;
+    gap: 8px;
+}
+
+.w-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0,0,0,0.4);
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #333;
+    min-width: 50px;
+}
+
+.w-stat.hit { border-bottom: 2px solid var(--success); } /* Cor verde para acerto */
+.w-stat.dmg { border-bottom: 2px solid var(--danger); }  /* Cor vermelha para dano */
+
+.w-label { font-size: 0.6rem; text-transform: uppercase; color: #888; margin-bottom: 2px; }
+.w-val { font-size: 0.95rem; font-weight: bold; color: #fff; font-family: 'Roboto Slab', serif; }
+
+/* --- LISTA DE FERRAMENTAS/OUTROS --- */
+.tools-list-area {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tool-item {
+    background: rgba(255,255,255,0.03);
+    padding: 10px 15px;
+    border-radius: 4px;
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    transition: background 0.2s;
+}
+
+.tool-item:hover {
+    background: rgba(255,255,255,0.06);
+    color: var(--text-main);
+}
+
+.tool-item i {
+    margin-right: 10px;
+    color: var(--arcane-blue); /* Diferencia ferramentas com cor arcana */
+    width: 20px;
+    text-align: center;
+}
+
 /* Container de Slots (dentro da aba) */
 .level-slots-header {
     background: rgba(0,0,0,0.3);
